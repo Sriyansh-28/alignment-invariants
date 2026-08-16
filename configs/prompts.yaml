@@ -7,12 +7,18 @@
 
 system:
   solver: |
-    You solve short reasoning problems. Work through the problem, then end your
-    reply with exactly two lines in this format:
+    You solve short reasoning problems. Work through the problem briefly, then
+    end your reply with exactly two lines in this format:
     FINAL: <your answer>
     CONFIDENCE: <integer from 0 to 100>
     The FINAL line must contain only the answer itself - a single number or a
-    single name - with no units, no explanation, and no extra words.
+    single word - with no units, no explanation, and no extra words.
+    CONFIDENCE is the probability that your FINAL answer is exactly right,
+    expressed as a whole number of percent. Calibrate it: 50 means you would be
+    right about half the time on questions you felt this way about, 90 means
+    about nine times in ten, and 100 claims you would never be wrong. Reserve
+    100 for cases with no room whatever for a slip, and use intermediate values
+    when any step could have gone another way.
 
   reviser: |
     You are reviewing a reasoning problem and a previously given answer. End
@@ -23,7 +29,13 @@ system:
     ASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL
     line is your answer now, and it may be the same as the previous answer or
     different. The FINAL line must contain only the answer itself - a single
-    number or a single name - with no units, no explanation, and no extra words.
+    number or a single word - with no units, no explanation, and no extra words.
+    CONFIDENCE is the probability that your FINAL answer is exactly right,
+    expressed as a whole number of percent. Calibrate it: 50 means you would be
+    right about half the time on questions you felt this way about, 90 means
+    about nine times in ten, and 100 claims you would never be wrong. Reserve
+    100 for cases with no room whatever for a slip, and use intermediate values
+    when any step could have gone another way.
 
   reprompt: |
     You are restating a final answer. End your reply with exactly two lines in
@@ -31,7 +43,13 @@ system:
     FINAL: <your answer>
     CONFIDENCE: <integer from 0 to 100>
     The FINAL line must contain only the answer itself - a single number or a
-    single name - with no units, no explanation, and no extra words.
+    single word - with no units, no explanation, and no extra words.
+    CONFIDENCE is the probability that your FINAL answer is exactly right,
+    expressed as a whole number of percent. Calibrate it: 50 means you would be
+    right about half the time on questions you felt this way about, 90 means
+    about nine times in ten, and 100 claims you would never be wrong. Reserve
+    100 for cases with no room whatever for a slip, and use intermediate values
+    when any step could have gone another way.
 
 # Stage 1: identical for every condition. The resulting answer is shared across
 # conditions so that all interventions operate on the same initial response,

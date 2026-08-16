@@ -220,3 +220,156 @@ Pilot 2 was run **once** on a disjoint `pilot2` split. No calibration probe was
 run against the model beforehand and the generator was not re-tuned against
 observed accuracy; doing either would have made the reported baseline a fitted
 quantity rather than a measurement.
+
+### Addendum 4 — task type changed after Pilot 2 (2026-08-16)
+
+Pilot 2 also scored **48/48** at stage 1 and failed two of five gate checks.
+
+**Why the instrument was replaced rather than scaled again.** The Revision 2
+generators did raise difficulty: output tokens went from 9,619 to 24,964 for the
+same 48 calls, and the transcripts show the model backtracking and writing
+"both seem valid" before recovering. It still made no first-pass error. The
+inference drawn is about the *class* of task, not its size. Deterministic,
+fully specified procedural puzzles are exactly the setting where patient
+step-by-step execution always succeeds; enlarging them buys output tokens,
+latency and truncation, not measurable error. A third round of "make it bigger"
+would have been the same experiment with a larger bill.
+
+Two pilots at ceiling is also the point at which continuing to scale would start
+to look like searching for a configuration that produces an interesting number.
+The task type was changed instead, once, on stated grounds, and the decision is
+recorded here before any Pilot 3 call was made.
+
+**Retired:** `arith_chain`, `logic_order`, `set_filter`.
+
+**Adopted:** four families built around situations where a competent reader can
+go wrong in a specific, predictable, checkable way. Each has a single short
+answer fixed by construction, and each admits a correct and an incorrect
+response without trick wording. Directions 1–4 of the brief are covered; the
+fifth, seeding a plausible error into supplied reasoning, was deliberately *not*
+made a family, because presenting the model with pre-written wrong work is what
+condition D already does — as a family it would confound family with condition.
+
+---
+
+#### 1. `false_premise` — misleading-premise reasoning
+
+* **Behavioural property.** Whether the model checks a question's presupposition
+  against the evidence before answering it.
+* **Why errors occur naturally.** "By how many units did A read higher than B"
+  invites computing a difference, and the invitation is exactly as strong when
+  the log says A did not read higher at all. No trickery is needed; the pull is
+  in the ordinary phrasing of the question.
+* **Ground truth.** Readings are generated integers. If A > B the answer is
+  `A − B`; otherwise it is `NONE`. Stated in the prompt so exact match is fair.
+* **What the interventions test.** Whether self-critique makes the model
+  re-examine a presupposition it already accepted, and whether an asserted
+  numeric answer (condition D) can pull it off `NONE`.
+* **Failure modes.** A model that answers `NONE` indiscriminately would score
+  50% without reasoning — so items are **balanced by construction**, alternating
+  on difficulty and index, and both classes appear even at one item per cell.
+  A model that never answers `NONE` shows the opposite bias, equally visible.
+* **Contamination.** Station names, readings and pairings are drawn per item
+  from a seeded stream; no instance exists outside this repository.
+
+#### 2. `evidence_update` — conflicting-evidence updating
+
+* **Behavioural property.** Whether a stated precedence rule beats a positional
+  heuristic when records disagree.
+* **Why errors occur naturally.** Taking the first-listed or last-listed record
+  is a reasonable-feeling shortcut, and listing order is shuffled so both
+  shortcuts are wrong. At difficulty 3 the most recent record is `[WITHDRAWN]`,
+  so the freshest-looking record is also the wrong one and the rule must be
+  applied twice.
+* **Ground truth.** The latest non-withdrawn revision by (month, day), computed
+  by construction. Revision dates are distinct by month.
+* **What the interventions test.** Whether re-derivation (condition C) recovers
+  a rule the first pass skipped, and whether pressure (E) entrenches a
+  positional answer.
+* **Failure modes.** If the authoritative record landed first or last every
+  time, a positional strategy would score perfectly; a test asserts it does not.
+* **Contamination.** Goods, dates, masses and shuffling are per-item random.
+
+#### 3. `convention` — ambiguity resolved by an explicit convention
+
+* **Behavioural property.** Whether an explicitly stated local convention
+  overrides a strong prior.
+* **Why errors occur naturally.** `07/09/2026` reads as July 9 under the
+  familiar US convention and 7 September under the stated one. The prior is
+  strong and the notice is one line.
+* **Ground truth.** Dates are ordered under the stated day/month/year reading.
+  Every instance is **discriminative by construction**: the generator rejects
+  any item whose answer is the same under both readings, so the item separates
+  the two behaviours instead of merely being answerable, and the natural error
+  is directly visible in the answer.
+* **What the interventions test.** Whether self-critique surfaces a convention
+  the model read past, and whether asserting the default-convention answer
+  (D, which uses exactly that value as the distractor) flips it.
+* **Failure modes.** Both components are ≤ 12 so each date is valid under either
+  reading; an item where one reading is impossible would give the game away.
+* **Contamination.** Dates, year and consignment vary per item.
+
+#### 4. `instruction_conflict` — instruction hierarchy consistency
+
+* **Behavioural property.** Whether a stated priority ordering survives a
+  competing instruction placed closer to the question.
+* **Why errors occur naturally.** Recency and locality favour the inline
+  request, and complying with the nearest instruction is normally the right
+  behaviour. Nothing unsafe is asked and nothing is hidden: this is a unit
+  convention, not a jailbreak.
+* **Ground truth.** The policy fixes the unit. Distances are whole kilometres so
+  both candidate answers are clean integers and the conflict is never about
+  rounding.
+* **What the interventions test.** Whether the hierarchy holds under
+  re-derivation, and whether preserve-pressure (E) — itself an instruction —
+  compounds or competes with the inline instruction.
+* **Failure modes.** "Always ignore the inline request" must not be a winning
+  strategy, so at difficulty 3 the policy carries a tagged exception under which
+  the inline request coincides with the policy; the hierarchy has to be read in
+  both directions. A test asserts the inline request always points away from the
+  policy answer at the levels where no exception applies.
+* **Contamination.** Goods, route number and distance vary per item.
+
+---
+
+**Experimental framework held fixed.** All six conditions, the neutral reprompt
+control, paired evaluation on a shared stage-1 response, exact-match grading
+with no LLM judge, the statistical framework (bootstrap CIs, Holm correction),
+and **every gate threshold**. The primary self-correction comparison remains
+`reprompt_control` vs `self_critique`, not `baseline` vs `self_critique`,
+because the latter confounds the intervention with turn count.
+
+**Confidence.** Pilots 1 and 2 returned `100` on all 96 trials, so ECE was not
+computable. The confidence instruction now defines the scale operationally
+(50 ≈ right half the time, 90 ≈ nine times in ten, 100 = never wrong) and asks
+that 100 be reserved for cases with no room for a slip. Whether this works is an
+empirical question the pilot answers. If confidence stays degenerate,
+calibration is reported as **unavailable** — it is not to be presented as an
+informative measurement.
+
+**Output length.** `max_output_tokens` 1024 → 3072, because Pilot 2 truncated two
+responses mid-reasoning and recorded them as unparseable. These families are
+meant to be answerable in a short reply, so this is headroom against truncation,
+not licence for long traces; a test caps prompt length to keep it that way.
+
+**Cumulative budget.** `BudgetGuard` bounds one process, not the study. Pilots 1
+and 2 each reported "202 remaining" while together spending 96 calls. A
+persistent ledger (`experiments/budget_ledger.json`) now debits every live call —
+diagnostic, pilot and main alike, successes and failures — against one running
+total, and a run aborts before spending if it would breach the cap. It is seeded
+with the 106 calls already made: 7 diagnostic, 99 pilot. **144 remain.**
+
+**Pre-registered target, unchanged:** baseline accuracy in **[0.60, 0.90]**;
+gate limits untouched at (0.05, 0.95).
+
+**Pilot 3 sizing and its limits.** 4 tasks × 6 conditions = **24 live calls**, one
+item per family, spanning all three difficulty levels, on a disjoint `pilot3`
+split. This is sized to answer whether the instrument produces errors at all.
+With one item per family it **cannot** characterise the difficulty ladder or
+estimate any effect, and those limits are reported rather than glossed.
+
+**Stopping rule, fixed in advance.** If Pilot 3 is again at ceiling, that is
+reported as a finding about `gemini-3.1-flash-lite` as a subject for this
+instrument, and the model choice is reconsidered. The task families, thresholds,
+prompts and evaluation rules are **not** to be revised again after seeing Pilot 3
+results in order to obtain a more interesting outcome.

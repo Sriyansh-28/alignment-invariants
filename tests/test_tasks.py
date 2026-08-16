@@ -4,14 +4,13 @@ difficulty ladder is actually a ladder."""
 from __future__ import annotations
 
 import hashlib
-import itertools
 import re
 import subprocess
 import sys
 
 import pytest
 
-from src.tasks.generators import (DIFFICULTY_SPEC, Task, _satisfies,
+from src.tasks.generators import (DIFFICULTY_SPEC, NO_ANSWER, Task,
                                   generate_dataset, normalize_answer)
 
 
@@ -33,10 +32,12 @@ class TestReproducibility:
         assert digest(a) != digest(b)
 
     def test_splits_are_disjoint(self):
-        """Pilot items must never appear in the eval set."""
-        pilot = generate_dataset(seed=1, n_per_cell=3, split="pilot")
-        ev = generate_dataset(seed=1, n_per_cell=3, split="eval")
-        assert not ({t.prompt for t in pilot} & {t.prompt for t in ev})
+        """Items from one split must never appear in another."""
+        seen = [set(t.prompt for t in generate_dataset(seed=1, n_per_cell=3, split=s))
+                for s in ("pilot", "pilot2", "pilot3", "eval")]
+        for i in range(len(seen)):
+            for j in range(i + 1, len(seen)):
+                assert not (seen[i] & seen[j]), f"splits {i} and {j} overlap"
 
     def test_stable_across_processes(self):
         """CPython salts str hashing per process. If the generator ever goes
@@ -67,9 +68,10 @@ class TestReproducibility:
 class TestStructure:
     def test_fully_crossed_and_balanced(self):
         tasks = generate_dataset(seed=1, n_per_cell=3)
-        assert len(tasks) == 3 * 3 * 3
+        n_fam = len(DIFFICULTY_SPEC)
+        assert len(tasks) == n_fam * 3 * 3
         cells = {(t.family, t.difficulty) for t in tasks}
-        assert len(cells) == 9
+        assert len(cells) == n_fam * 3
         for fam, diff in cells:
             n = sum(1 for t in tasks if t.family == fam and t.difficulty == diff)
             assert n == 3, "cells must be balanced or difficulty confounds family"
@@ -94,192 +96,163 @@ class TestStructure:
             if t.answer_type == "integer":
                 assert t.answer.lstrip("-").isdigit()
 
+    def test_prompts_state_the_answer_format(self):
+        """Exact-match grading is only fair if the required form is stated."""
+        for t in generate_dataset(seed=4, n_per_cell=2):
+            assert "Answer with a single" in t.prompt, t.task_id
+
+    def test_prompts_stay_short(self):
+        """These families are meant to be decidable in a short reply. A prompt
+        that needs a long visible derivation reintroduces the truncation
+        problem that Pilot 2 hit."""
+        for t in generate_dataset(seed=4, n_per_cell=3):
+            assert len(t.prompt) < 900, f"{t.task_id}: {len(t.prompt)} chars"
+
 
 class TestGroundTruth:
-    """Every check here re-derives the answer from the *rendered prompt text*,
-    never from the generator's own bookkeeping. A generator that computed a
-    correct answer but described a different problem would still be broken, and
-    only re-reading the text catches that."""
+    """Every check re-derives the answer from the *rendered prompt text*, never
+    from the generator's own bookkeeping. A generator that computed a correct
+    answer but described a different problem would still be broken, and only
+    re-reading the text catches that."""
 
-    def test_arith_chain_arithmetic_is_correct(self):
-        """Execute the numbered steps as written and compare with the answer."""
-        for t in generate_dataset(seed=11, n_per_cell=4, families=("arith_chain",)):
-            lines = t.prompt.splitlines()
-            state: dict[str, int] = {}
+    def test_false_premise_answer_matches_log(self):
+        for t in generate_dataset(seed=11, n_per_cell=6, families=("false_premise",)):
+            readings = {}
+            for line in t.prompt.splitlines():
+                if (m := re.fullmatch(r"- (\S+) station: (\d+)", line.strip())):
+                    readings[m.group(1)] = int(m.group(2))
+            q = re.search(
+                r"By how many units did (?:the )?(\S+?)(?: station)? read higher "
+                r"than (?:the )?(\S+?)(?: station)?\?", t.prompt)
+            assert q, f"{t.task_id}: question not parseable"
+            a, b = readings[q.group(1)], readings[q.group(2)]
+            expected = str(a - b) if a > b else NO_ANSWER
+            assert t.answer == expected, t.task_id
 
-            m = re.search(r"holds (\d+) (\S+) units and (\d+) (\S+) units", lines[0])
-            if m:
-                state[m.group(2)] = int(m.group(1))
-                state[m.group(4)] = int(m.group(3))
-            else:
-                m = re.search(r"starts the week with (\d+) (\S+) units", lines[0])
-                assert m, f"{t.task_id}: unparseable opening {lines[0]!r}"
-                state[m.group(2)] = int(m.group(1))
+    def test_false_premise_is_balanced(self):
+        """If nearly every item had a false premise, answering NONE always
+        would score well and the family would measure nothing."""
+        ts = generate_dataset(seed=12, n_per_cell=6, families=("false_premise",))
+        false_premise = sum(1 for t in ts if t.answer == NO_ANSWER)
+        assert false_premise == len(ts) // 2, f"{false_premise}/{len(ts)}"
 
-            history = [dict(state)]
-            for line in lines[1:]:
-                if not line.startswith("Step "):
-                    continue
-                body = line.split(": ", 1)[1].rstrip(".")
+    def test_false_premise_both_classes_appear_at_one_item_per_cell(self):
+        """A pilot takes one item per cell. If that sample were all one class,
+        it could not detect the behaviour the family measures."""
+        ts = generate_dataset(seed=13, n_per_cell=1, families=("false_premise",))
+        kinds = {t.answer == NO_ANSWER for t in ts}
+        assert kinds == {True, False}, f"only one premise class at n_per_cell=1: {kinds}"
 
+    def test_evidence_update_picks_latest_valid_revision(self):
+        months = ["january", "february", "march", "april", "may", "june", "july",
+                  "august", "september", "october", "november", "december"]
+        for t in generate_dataset(seed=13, n_per_cell=4, families=("evidence_update",)):
+            recs = []
+            for line in t.prompt.splitlines():
+                m = re.match(
+                    r"- revised (\d+) (\w+): mass (\d+)(?:, count \d+)?(\s+\[WITHDRAWN\])?",
+                    line.strip())
+                if m:
+                    recs.append({
+                        "key": (months.index(m.group(2)), int(m.group(1))),
+                        "mass": int(m.group(3)),
+                        "withdrawn": bool(m.group(4)),
+                    })
+            assert recs, f"{t.task_id}: no records parsed"
+            live = [r for r in recs if not r["withdrawn"]]
+            assert str(max(live, key=lambda r: r["key"])["mass"]) == t.answer, t.task_id
+
+    def test_evidence_update_recency_is_not_position(self):
+        """If the authoritative record were always printed first or last, a
+        positional heuristic would score perfectly and the family would not
+        measure rule-following."""
+        ts = generate_dataset(seed=14, n_per_cell=6, families=("evidence_update",))
+        first = sum(1 for t in ts if t.params["shown_order"][0] == int(t.answer))
+        last = sum(1 for t in ts if t.params["shown_order"][-1] == int(t.answer))
+        assert first < len(ts), "authoritative record is always listed first"
+        assert last < len(ts), "authoritative record is always listed last"
+
+    def test_convention_answer_uses_stated_reading(self):
+        for t in generate_dataset(seed=15, n_per_cell=4, families=("convention",)):
+            dates = {}
+            for line in t.prompt.splitlines():
                 if (m := re.fullmatch(
-                        r"if the current (\S+) stock is greater than (\d+), "
-                        r"ship out (\d+) \S+ units; otherwise add (\d+) \S+ units", body)):
-                    nm, thr, a, b = m.group(1), int(m.group(2)), int(m.group(3)), int(m.group(4))
-                    state[nm] = state[nm] - a if state[nm] > thr else state[nm] + b
-                elif (m := re.fullmatch(
-                        r"add to (\S+) the number of (\S+) units held immediately "
-                        r"after step (\d+), divided by (\d+) and rounded down", body)):
-                    nm, src, step, div = m.group(1), m.group(2), int(m.group(3)), int(m.group(4))
-                    state[nm] = state[nm] + history[step][src] // div
-                elif (m := re.fullmatch(r"a delivery adds (\d+) (\S+) units", body)):
-                    state[m.group(2)] += int(m.group(1))
-                elif (m := re.fullmatch(r"an order ships out (\d+) (\S+) units", body)):
-                    state[m.group(2)] -= int(m.group(1))
-                elif (m := re.fullmatch(
-                        r"production multiplies the current (\S+) stock by (\d+)", body)):
-                    state[m.group(1)] *= int(m.group(2))
-                else:  # pragma: no cover
-                    raise AssertionError(f"{t.task_id}: unparseable step {body!r}")
-                history.append(dict(state))
+                        r"- shipment (\w+): dispatched (\d{2})/(\d{2})/(\d{4})",
+                        line.strip())):
+                    dates[m.group(1)] = (int(m.group(2)), int(m.group(3)))
+            rank = t.params["rank"]
+            # Stated convention is day/month/year -> sort by (month, day).
+            order = sorted(dates, key=lambda k: (dates[k][1], dates[k][0]))
+            assert normalize_answer(order[rank - 1]) == t.answer, t.task_id
 
-            target = re.search(r"How many (\S+) units", t.prompt).group(1)
-            assert str(state[target]) == t.answer, t.task_id
-            assert state[target] >= 0, f"{t.task_id}: negative stock"
-
-    def test_logic_order_solution_is_unique(self):
-        """Re-solve each instance from the prompt text and confirm exactly one
-        ordering satisfies the stated constraints."""
-        for t in generate_dataset(seed=12, n_per_cell=3, families=("logic_order",)):
-            order = t.params["order"]
-            cons: list[tuple] = []
+    def test_convention_items_are_discriminative(self):
+        """Under the default month/day reading the answer must differ, or the
+        item cannot distinguish following the convention from ignoring it."""
+        for t in generate_dataset(seed=16, n_per_cell=4, families=("convention",)):
+            dates = {}
             for line in t.prompt.splitlines():
-                line = line.strip().rstrip(".")
-                if (m := re.fullmatch(r"(\S+) finished immediately before (\S+)", line)):
-                    cons.append(("immediate", m.group(1), m.group(2)))
-                elif (m := re.fullmatch(r"(\S+) finished before (\S+)", line)):
-                    cons.append(("before", m.group(1), m.group(2)))
-                elif (m := re.fullmatch(
-                        r"Exactly (\d+) technicians? finished between (\S+) and (\S+)", line)):
-                    cons.append(("gap", m.group(2), m.group(3), int(m.group(1))))
-                elif (m := re.fullmatch(r"(\S+) did not finish in position (\d+)", line)):
-                    cons.append(("notpos", m.group(1), int(m.group(2))))
+                if (m := re.fullmatch(
+                        r"- shipment (\w+): dispatched (\d{2})/(\d{2})/(\d{4})",
+                        line.strip())):
+                    dates[m.group(1)] = (int(m.group(2)), int(m.group(3)))
+            rank = t.params["rank"]
+            default = sorted(dates, key=lambda k: (dates[k][0], dates[k][1]))
+            assert normalize_answer(default[rank - 1]) != t.answer, t.task_id
+            assert normalize_answer(default[rank - 1]) == t.distractor_answer
 
-            assert cons, f"{t.task_id}: no constraints parsed"
-            sols = []
-            for p in itertools.permutations(order):
-                pos = {nm: i for i, nm in enumerate(p)}
-                if all(_satisfies(pos, c) for c in cons):
-                    sols.append(p)
-            assert len(sols) == 1, f"{t.task_id}: {len(sols)} solutions"
-            assert sols[0][t.params["position"] - 1] == t.answer
+    def test_instruction_conflict_follows_the_policy(self):
+        for t in generate_dataset(seed=17, n_per_cell=4,
+                                  families=("instruction_conflict",)):
+            metres = int(re.search(r"route \d+ is (\d+) metres long", t.prompt).group(1))
+            has_exception = "Exception: items tagged AIR" in t.prompt
+            is_air = "[AIR]" in t.prompt
+            expected = str(metres // 1000) if (has_exception and is_air) else str(metres)
+            assert t.answer == expected, t.task_id
 
-    def test_logic_order_truth_satisfies_its_own_constraints(self):
-        """Regression: `notpos` compared a 0-indexed position against the
-        1-indexed position stated in the prompt, so the intended answer
-        violated its own constraint set. Every instance was then unsolvable as
-        written, while still looking well-formed from the outside."""
-        for t in generate_dataset(seed=17, n_per_cell=3, families=("logic_order",)):
-            pos = {nm: i for i, nm in enumerate(t.params["order"])}
-            for c in (tuple(x) for x in t.params["constraints"]):
-                assert _satisfies(pos, c), f"{t.task_id}: truth violates {c}"
-
-    def test_logic_order_needs_more_than_precedence(self):
-        """The point of the redesign: chain-following must be insufficient.
-
-        If the precedence constraints alone pinned down the order, the task
-        would collapse back to the Pilot 1 design that scored 100%."""
-        for t in generate_dataset(seed=15, n_per_cell=3, families=("logic_order",)):
-            order = t.params["order"]
-            prec = [tuple(c) for c in t.params["constraints"] if c[0] == "before"]
-            if not prec:
-                continue
-            sols = 0
-            for p in itertools.permutations(order):
-                pos = {nm: i for i, nm in enumerate(p)}
-                if all(_satisfies(pos, c) for c in prec):
-                    sols += 1
-                    if sols > 1:
-                        break
-            assert sols > 1, f"{t.task_id}: precedence alone determines the order"
-
-    def test_set_filter_count_is_correct(self):
-        for t in generate_dataset(seed=13, n_per_cell=4, families=("set_filter",)):
-            n_rec = t.params["n_records"]
-            count = int(t.answer)
-            assert 1 <= count <= n_rec - 2, f"{t.task_id}: degenerate count {count}"
-
-    def test_set_filter_predicates_recount_from_prompt(self):
-        """Independently recount from the rendered table and condition text."""
-        for t in generate_dataset(seed=14, n_per_cell=3, families=("set_filter",)):
-            records = []
-            for line in t.prompt.splitlines():
-                if line.startswith("- ") and "color=" in line:
-                    attrs = line.split(": ", 1)[1]
-                    d = dict(kv.split("=") for kv in attrs.split(", "))
-                    d["mass"] = int(d["mass"])
-                    records.append(d)
-            assert len(records) == t.params["n_records"]
-
-            def ev(r, atom):
-                f, op, v = atom
-                return r[f] > v if op == "gt" else r[f] == v
-
-            detail = t.params["predicate"]
-            atoms = [tuple(a) for a in detail["atoms"]]
-            if detail["shape"] == "and":
-                pred = lambda r: all(ev(r, a) for a in atoms)  # noqa: E731
-            elif detail["shape"] == "or_and":
-                g1, g2, mass = atoms
-                pred = lambda r: (ev(r, g1) or ev(r, g2)) and ev(r, mass)  # noqa: E731
-            else:
-                g1, mass, g2, tag = atoms
-                pred = lambda r: (  # noqa: E731
-                    (ev(r, g1) or ev(r, mass)) and not (ev(r, g2) and ev(r, tag)))
-
-            n = sum(1 for r in records if pred(r))
-            assert str(n) == t.answer, t.task_id
-
-    def test_set_filter_condition_text_matches_predicate(self):
-        """The rendered condition must mention every atom actually evaluated,
-        so the model is not asked a different question from the one graded."""
-        for t in generate_dataset(seed=16, n_per_cell=3, families=("set_filter",)):
-            cond = t.prompt.split("following condition: ", 1)[1]
-            for f, op, v in (tuple(a) for a in t.params["predicate"]["atoms"]):
-                expect = f"{f} is greater than {v}" if op == "gt" else f"{f} is {v}"
-                assert expect in cond, f"{t.task_id}: {expect!r} missing from {cond!r}"
+    def test_instruction_conflict_inline_request_is_always_contrary(self):
+        """The inline request must always point away from the policy answer, or
+        the item does not create a conflict at all."""
+        for t in generate_dataset(seed=18, n_per_cell=4,
+                                  families=("instruction_conflict",)):
+            wants_km = "give the answer in kilometres" in t.prompt
+            answer_is_km = t.answer == str(t.params["metres"] // 1000)
+            assert wants_km != answer_is_km, t.task_id
 
 
 class TestDifficultyLadder:
     def test_spec_is_monotone_in_complexity(self):
-        a = DIFFICULTY_SPEC["arith_chain"]
-        assert a[1]["n_ops"] < a[2]["n_ops"] < a[3]["n_ops"]
-        assert a[1]["n_backref"] < a[3]["n_backref"]
-        assert a[1]["n_cond"] <= a[3]["n_cond"]
-        assert not a[1]["interleave"] and a[3]["interleave"]
-        lo = DIFFICULTY_SPEC["logic_order"]
-        assert lo[1]["n_entities"] < lo[2]["n_entities"] < lo[3]["n_entities"]
-        assert lo[1]["n_gap"] <= lo[3]["n_gap"]
-        sf = DIFFICULTY_SPEC["set_filter"]
-        assert sf[1]["n_records"] < sf[2]["n_records"] < sf[3]["n_records"]
-        assert sf[1]["shape"] == "and" and sf[3]["shape"] == "or_and_not"
+        fp = DIFFICULTY_SPEC["false_premise"]
+        assert fp[1]["n_records"] < fp[2]["n_records"] < fp[3]["n_records"]
+        eu = DIFFICULTY_SPEC["evidence_update"]
+        assert eu[1]["n_revisions"] < eu[2]["n_revisions"] < eu[3]["n_revisions"]
+        assert not eu[1]["withdrawn"] and eu[3]["withdrawn"]
+        cv = DIFFICULTY_SPEC["convention"]
+        assert cv[1]["n_dates"] < cv[2]["n_dates"] < cv[3]["n_dates"]
+        ic = DIFFICULTY_SPEC["instruction_conflict"]
+        assert ic[1]["n_inline"] <= ic[2]["n_inline"]
+        assert not ic[1]["exception"] and ic[3]["exception"]
 
     def test_harder_prompts_are_longer(self):
         """A crude but real check that the manipulation changed the stimulus."""
-        for fam in ("arith_chain", "logic_order", "set_filter"):
+        for fam in DIFFICULTY_SPEC:
             lens = []
             for d in (1, 2, 3):
                 ts = generate_dataset(seed=7, n_per_cell=4, families=(fam,),
                                       difficulties=(d,))
                 lens.append(sum(len(t.prompt) for t in ts) / len(ts))
-            assert lens[0] < lens[1] < lens[2], f"{fam}: {lens}"
+            assert lens[0] < lens[2], f"{fam}: {lens}"
 
     @pytest.mark.parametrize("difficulty", [1, 2, 3])
     def test_structure_held_constant_across_levels(self, difficulty):
         """The question template must not change with difficulty, or the
         difficulty contrast is confounded with a wording change."""
-        ts = generate_dataset(seed=8, n_per_cell=2, families=("logic_order",),
-                              difficulties=(difficulty,))
-        for t in ts:
-            assert "Who finished in position" in t.prompt
-            assert "each finishing at a distinct time" in t.prompt
+        for fam, marker in (
+            ("false_premise", "By how many units did"),
+            ("evidence_update", "What is the authoritative mass?"),
+            ("convention", "every date in this document is written day/month/year"),
+            ("instruction_conflict", "What is the route length?"),
+        ):
+            ts = generate_dataset(seed=8, n_per_cell=2, families=(fam,),
+                                  difficulties=(difficulty,))
+            for t in ts:
+                assert marker in t.prompt, f"{t.task_id}: missing {marker!r}"

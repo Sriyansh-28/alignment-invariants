@@ -1,0 +1,50 @@
+{
+  "hard_cap": 250,
+  "entries": [
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "diagnostic",
+      "label": "model-availability-probe",
+      "calls": 2,
+      "successful": 0,
+      "failed": 2,
+      "note": "gemini-2.5-flash and gemini-2.5-flash-lite; both 404 NOT_FOUND for a new key"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "pilot",
+      "label": "pilot1-aborted-on-retired-model",
+      "calls": 3,
+      "successful": 0,
+      "failed": 3,
+      "note": "stage1 attempts on gemini-2.5-flash before the 404 was diagnosed; cache entries deleted"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "diagnostic",
+      "label": "candidate-model-sweep",
+      "calls": 5,
+      "successful": 5,
+      "failed": 0,
+      "note": "thinking_budget=0 compatibility across 5 candidate models"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "pilot",
+      "label": "pilot1",
+      "calls": 48,
+      "successful": 48,
+      "failed": 0,
+      "note": "Revision 1 generators, gemini-3.1-flash-lite; 48/48 at stage 1, gate failed 3/5"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "pilot",
+      "label": "pilot2",
+      "calls": 48,
+      "successful": 48,
+      "failed": 0,
+      "note": "Revision 2 generators; 48/48 at stage 1, gate failed 2/5"
+    }
+  ]
+}

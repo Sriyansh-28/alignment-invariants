@@ -28,6 +28,8 @@ from typing import Any
 import yaml
 
 from src.caching.cache import ResponseCache
+from src.caching.ledger import (DEFAULT_LEDGER, BudgetLedger,
+                                LedgerExceededError)
 from src.evaluation.extract import Parsed, is_correct, parse_response
 from src.gemini.client import (APIKeyError, BudgetExceededError, BudgetGuard,
                                CachedModel, GeminiProvider, load_api_key)
@@ -323,15 +325,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.max_calls is not None:
         cap = min(cap, args.max_calls)
 
+    # The per-run cap above bounds this process only. The study budget is
+    # cumulative across every run ever made, which is what the ledger tracks.
+    ledger = BudgetLedger(cfg["paths"].get("ledger", DEFAULT_LEDGER),
+                          hard_cap=cfg["budget"]["max_api_calls"])
+
     print(f"\n=== phase={args.phase}  tasks={len(tasks)}  conditions={len(cfg['conditions'])} ===")
     print("Planned live calls (worst case, before cache):")
     for k, v in plan.items():
         print(f"  {k:22s} {v:4d}")
-    print(f"  {'hard cap':22s} {cap:4d}")
+    print(f"  {'per-run cap':22s} {cap:4d}")
+    print("Cumulative study budget (persists across runs):")
+    print(f"  {'already spent':22s} {ledger.total_calls():4d}   {ledger.total_by_kind()}")
+    print(f"  {'remaining':22s} {ledger.remaining():4d} of {ledger.hard_cap}")
 
     if plan["total"] > cap:
-        print(f"\nABORT: plan of {plan['total']} calls exceeds the cap of {cap}. "
-              f"Nothing was spent.", file=sys.stderr)
+        print(f"\nABORT: plan of {plan['total']} calls exceeds the per-run cap of "
+              f"{cap}. Nothing was spent.", file=sys.stderr)
+        return 2
+    try:
+        ledger.check_can_spend(plan["total"])
+    except LedgerExceededError as exc:
+        print(f"\nABORT: {exc}\nNothing was spent.", file=sys.stderr)
         return 2
     if args.dry_run:
         print("\n--dry-run: no API calls issued.")
@@ -380,6 +395,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nERROR: {exc}", file=sys.stderr)
         return 3
 
+    # Debit the ledger before writing anything, so the results file records the
+    # true post-run cumulative total and a crash after this point still leaves
+    # the spend accounted for.
+    _b = guard.summary()
+    split = cfg["dataset"].get(f"{args.phase}_split", args.phase)
+    if provider_kind == "gemini" and _b["live_calls"]:
+        ledger.record(kind=args.phase, label=split, calls=_b["live_calls"],
+                      successful=_b["successful_calls"], failed=_b["failed_calls"],
+                      note=f"model={model_name}, phase={args.phase}")
+
     payload["meta"] = {
         "experiment_name": cfg["experiment_name"],
         "phase": args.phase,
@@ -393,6 +418,10 @@ def main(argv: list[str] | None = None) -> int:
         "planned_calls": plan,
         "budget": guard.summary(),
         "cache": cache.stats(),
+        # Cumulative spend across every run, not just this process. A results
+        # file that reported only the per-run count implied far more budget
+        # remained than actually did.
+        "cumulative_budget": ledger.totals(),
     }
     payload["tasks"] = [t.to_dict() for t in tasks]
 
@@ -404,13 +433,20 @@ def main(argv: list[str] | None = None) -> int:
         json.dump(payload, fh, indent=2)
 
     b = guard.summary()
+    # Debit the ledger with what this run actually spent, so the next run starts
+    # from the true cumulative total even if this one crashed partway.
     print(f"\n--- budget ---")
-    print(f"  live calls      : {b['live_calls']} / {b['max_calls']}")
+    print(f"  live calls      : {b['live_calls']} / {b['max_calls']} (this run)")
     print(f"  successful      : {b['successful_calls']}")
     print(f"  failed          : {b['failed_calls']}")
     print(f"  cache hits      : {b['cache_hits']}")
     print(f"  tokens (p/o)    : {b['prompt_tokens']} / {b['output_tokens']}")
     print(f"  per condition   : {b['calls_per_condition']}")
+    print(f"\n--- cumulative study budget ---")
+    t = ledger.totals()
+    print(f"  spent all runs  : {t['total_calls']} / {t['hard_cap']}")
+    print(f"  remaining       : {t['remaining']}")
+    print(f"  by kind         : {t['by_kind']}")
     print(f"\nwrote {out_path}")
     return 0
 

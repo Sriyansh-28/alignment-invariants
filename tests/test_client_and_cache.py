@@ -96,6 +96,55 @@ class TestCache:
             assert "api_key" not in json.dumps(blob).lower()
 
 
+class TestFailuresAreNeverCached:
+    """Regression cover for the Pilot 2 defect.
+
+    Failures used to be written to the cache and replayed as ordinary hits, so a
+    rerun after a bad run (expired key, transient 5xx, a retired model) served
+    those failures as if they were model output -- with no live call and no
+    budget spent to reveal the problem. The bug was dormant in Pilots 1 and 2
+    only because every call happened to succeed."""
+
+    def test_failed_response_is_not_written(self, tmp_path):
+        fail = CallResult(text="", from_cache=False, ok=False, error="boom")
+        model, guard, cache = make_model(tmp_path, FakeProvider(fail))
+        model.call(**CALL)
+        assert cache.writes == 0
+        assert cache.stats()["rejected_failure_writes"] == 1
+        assert not list((tmp_path / "cache").rglob("*.json"))
+
+    def test_failed_call_is_reissued_not_replayed(self, tmp_path):
+        """The second attempt must hit the provider again, not the cache."""
+        provider = FakeProvider(CallResult(text="", from_cache=False, ok=False,
+                                           error="boom"))
+        model, guard, cache = make_model(tmp_path, provider)
+        model.call(**CALL)
+        model.call(**CALL)
+        assert provider.calls == 2, "a cached failure was replayed"
+        assert cache.hits == 0
+
+    def test_stale_ok_false_entry_is_treated_as_a_miss(self, tmp_path):
+        """An entry left on disk by an older revision must not be served."""
+        cache = ResponseCache(tmp_path / "cache")
+        key = "deadbeef" * 8
+        # Write directly, bypassing put(), exactly as the old revision would have.
+        p = cache._path(key)
+        p.write_text(json.dumps({"text": "poison", "ok": False,
+                                 "error": "404 NOT_FOUND"}), encoding="utf-8")
+        assert cache.get(key) is None
+        assert cache.stats()["stale_failure_entries"] == 1
+        assert cache.hits == 0 and cache.misses == 1
+
+    def test_successful_entry_is_still_cached(self, tmp_path):
+        """The fix must not disable caching for the calls that matter."""
+        provider = FakeProvider()
+        model, guard, cache = make_model(tmp_path, provider)
+        model.call(**CALL)
+        model.call(**CALL)
+        assert provider.calls == 1
+        assert cache.hits == 1 and cache.writes == 1
+
+
 class TestBudget:
     def test_hard_cap_blocks_the_next_call(self, tmp_path):
         model, guard, _ = make_model(tmp_path, max_calls=2)
