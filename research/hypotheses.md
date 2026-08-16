@@ -155,3 +155,68 @@ hypotheses were written against, and is not the model named anywhere in the
 original brief. Absolute accuracy figures are therefore not comparable to any
 result obtained on `gemini-2.5-flash`. The within-study comparisons between
 conditions remain valid, because every condition is run against the same model.
+
+### Addendum 3 — instrument redesign after Pilot 1 (2026-08-16)
+
+Pilot 1 (48 live calls, `experiments/pilot1_results.json`) scored **48/48**. The
+gate failed three of five checks and the main run was not started.
+
+**Why every cell was at ceiling.** Each family was solvable in one forward pass
+with nothing to retain:
+
+* `arith_chain` was a straight line of at most six independent add/sub/mul
+  steps. No intermediate value ever had to be held or revisited, and the
+  distractor sentences announced their own irrelevance ("stored in a different
+  building"), so they cost nothing to skip.
+* `logic_order` always listed **every adjacent pair** of the true order, so the
+  answer could be read off by walking a chain; no transitive inference was ever
+  required. This was not a tuning oversight. A set of pure precedence
+  constraints has a unique linear extension only if it contains all adjacent
+  pairs, so *no* choice of parameters could have made that family hard while
+  precedence was the only constraint type.
+* `set_filter` was at most 11 rows under a flat conjunction, scannable in one
+  pass, and its answers were drawn from a very small range.
+
+**What changed.** Reasoning depth was raised; nothing was obscured, and no
+question was made ambiguous or trick-like.
+
+| Family | Mechanism added | d1 → d3 |
+|---|---|---|
+| `arith_chain` | two interleaved ledgers, so each step must be bound to the right line; conditional steps whose branch depends on the running value; back-references to the value held after a named earlier step | 5 → 11 steps |
+| `logic_order` | adjacency, gap ("exactly *k* finished between X and Y", direction unstated) and negative-position constraints; instance rejected unless precedence constraints **alone** leave the order ambiguous | 5 → 7 entities |
+| `set_filter` | numeric `mass` column with threshold comparisons; predicate tree grows from a flat conjunction to a nested boolean with a negated group | 10 → 22 rows |
+
+**How ground truth stays objectively verifiable.** Answers are still computed by
+construction and graded by normalized exact match, never by an LLM judge.
+Specifically: the arithmetic ledger is the literal result of executing numbered
+instructions; every ordering instance is brute-force checked to have exactly one
+solution; every filter condition is rendered with explicit parentheses so it has
+one reading. The unit tests re-derive each answer **from the rendered prompt
+text** rather than from the generator's own bookkeeping, so a generator that
+computed a correct answer while describing a different problem fails the suite.
+That check immediately caught a real defect: negative-position constraints
+compared a 0-indexed position against the 1-indexed position stated in the
+prompt, which made every ordering instance unsolvable as written while still
+looking well-formed. It is now covered by a regression test.
+
+**Pre-registered target, fixed before Pilot 2 was run.** Baseline (stage-1)
+accuracy in **[0.60, 0.90]**. The reasoning: below ~0.60 the paired comparisons
+lose power because too few items are answered correctly at stage 1 to measure
+false correction; above ~0.90 the correction denominator gets too small to
+estimate a rate. The gate's hard limits are **unchanged** at (0.05, 0.95) — the
+band is a design target, not a gate, and no gate threshold was edited.
+
+Baseline accuracy is a nuisance parameter, not a hypothesis-relevant outcome:
+H1–H5 concern *differences between conditions*, all measured on the same items.
+Landing outside the band would be a statement about instrument sensitivity, not
+about any hypothesis, and is reported as such.
+
+**Held fixed from the original design:** all six conditions, the neutral reprompt
+control, paired evaluation (every condition operates on the same stage-1
+response), exact-match grading, the three families, the three difficulty levels,
+and every gate threshold.
+
+Pilot 2 was run **once** on a disjoint `pilot2` split. No calibration probe was
+run against the model beforehand and the generator was not re-tuned against
+observed accuracy; doing either would have made the reported baseline a fitted
+quantity rather than a measurement.

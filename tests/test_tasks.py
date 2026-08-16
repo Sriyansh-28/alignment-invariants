@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+import re
 import subprocess
 import sys
 
 import pytest
 
-from src.tasks.generators import (DIFFICULTY_SPEC, Task, generate_dataset,
-                                  normalize_answer)
+from src.tasks.generators import (DIFFICULTY_SPEC, Task, _satisfies,
+                                  generate_dataset, normalize_answer)
 
 
 def digest(tasks: list[Task]) -> str:
@@ -95,28 +96,112 @@ class TestStructure:
 
 
 class TestGroundTruth:
+    """Every check here re-derives the answer from the *rendered prompt text*,
+    never from the generator's own bookkeeping. A generator that computed a
+    correct answer but described a different problem would still be broken, and
+    only re-reading the text catches that."""
+
     def test_arith_chain_arithmetic_is_correct(self):
+        """Execute the numbered steps as written and compare with the answer."""
         for t in generate_dataset(seed=11, n_per_cell=4, families=("arith_chain",)):
-            v = t.params["start"]
-            for op in t.params["trace"]:
-                k = int(op[1:])
-                v = v + k if op[0] == "+" else v - k if op[0] == "-" else v * k
-            assert str(v) == t.answer, t.task_id
+            lines = t.prompt.splitlines()
+            state: dict[str, int] = {}
+
+            m = re.search(r"holds (\d+) (\S+) units and (\d+) (\S+) units", lines[0])
+            if m:
+                state[m.group(2)] = int(m.group(1))
+                state[m.group(4)] = int(m.group(3))
+            else:
+                m = re.search(r"starts the week with (\d+) (\S+) units", lines[0])
+                assert m, f"{t.task_id}: unparseable opening {lines[0]!r}"
+                state[m.group(2)] = int(m.group(1))
+
+            history = [dict(state)]
+            for line in lines[1:]:
+                if not line.startswith("Step "):
+                    continue
+                body = line.split(": ", 1)[1].rstrip(".")
+
+                if (m := re.fullmatch(
+                        r"if the current (\S+) stock is greater than (\d+), "
+                        r"ship out (\d+) \S+ units; otherwise add (\d+) \S+ units", body)):
+                    nm, thr, a, b = m.group(1), int(m.group(2)), int(m.group(3)), int(m.group(4))
+                    state[nm] = state[nm] - a if state[nm] > thr else state[nm] + b
+                elif (m := re.fullmatch(
+                        r"add to (\S+) the number of (\S+) units held immediately "
+                        r"after step (\d+), divided by (\d+) and rounded down", body)):
+                    nm, src, step, div = m.group(1), m.group(2), int(m.group(3)), int(m.group(4))
+                    state[nm] = state[nm] + history[step][src] // div
+                elif (m := re.fullmatch(r"a delivery adds (\d+) (\S+) units", body)):
+                    state[m.group(2)] += int(m.group(1))
+                elif (m := re.fullmatch(r"an order ships out (\d+) (\S+) units", body)):
+                    state[m.group(2)] -= int(m.group(1))
+                elif (m := re.fullmatch(
+                        r"production multiplies the current (\S+) stock by (\d+)", body)):
+                    state[m.group(1)] *= int(m.group(2))
+                else:  # pragma: no cover
+                    raise AssertionError(f"{t.task_id}: unparseable step {body!r}")
+                history.append(dict(state))
+
+            target = re.search(r"How many (\S+) units", t.prompt).group(1)
+            assert str(state[target]) == t.answer, t.task_id
+            assert state[target] >= 0, f"{t.task_id}: negative stock"
 
     def test_logic_order_solution_is_unique(self):
         """Re-solve each instance from the prompt text and confirm exactly one
         ordering satisfies the stated constraints."""
         for t in generate_dataset(seed=12, n_per_cell=3, families=("logic_order",)):
             order = t.params["order"]
-            constraints = []
+            cons: list[tuple] = []
             for line in t.prompt.splitlines():
-                if " finished before " in line:
-                    a, b = line.rstrip(".").split(" finished before ")
-                    constraints.append((a.strip(), b.strip()))
-            sols = [p for p in itertools.permutations(order)
-                    if all(p.index(a) < p.index(b) for a, b in constraints)]
+                line = line.strip().rstrip(".")
+                if (m := re.fullmatch(r"(\S+) finished immediately before (\S+)", line)):
+                    cons.append(("immediate", m.group(1), m.group(2)))
+                elif (m := re.fullmatch(r"(\S+) finished before (\S+)", line)):
+                    cons.append(("before", m.group(1), m.group(2)))
+                elif (m := re.fullmatch(
+                        r"Exactly (\d+) technicians? finished between (\S+) and (\S+)", line)):
+                    cons.append(("gap", m.group(2), m.group(3), int(m.group(1))))
+                elif (m := re.fullmatch(r"(\S+) did not finish in position (\d+)", line)):
+                    cons.append(("notpos", m.group(1), int(m.group(2))))
+
+            assert cons, f"{t.task_id}: no constraints parsed"
+            sols = []
+            for p in itertools.permutations(order):
+                pos = {nm: i for i, nm in enumerate(p)}
+                if all(_satisfies(pos, c) for c in cons):
+                    sols.append(p)
             assert len(sols) == 1, f"{t.task_id}: {len(sols)} solutions"
             assert sols[0][t.params["position"] - 1] == t.answer
+
+    def test_logic_order_truth_satisfies_its_own_constraints(self):
+        """Regression: `notpos` compared a 0-indexed position against the
+        1-indexed position stated in the prompt, so the intended answer
+        violated its own constraint set. Every instance was then unsolvable as
+        written, while still looking well-formed from the outside."""
+        for t in generate_dataset(seed=17, n_per_cell=3, families=("logic_order",)):
+            pos = {nm: i for i, nm in enumerate(t.params["order"])}
+            for c in (tuple(x) for x in t.params["constraints"]):
+                assert _satisfies(pos, c), f"{t.task_id}: truth violates {c}"
+
+    def test_logic_order_needs_more_than_precedence(self):
+        """The point of the redesign: chain-following must be insufficient.
+
+        If the precedence constraints alone pinned down the order, the task
+        would collapse back to the Pilot 1 design that scored 100%."""
+        for t in generate_dataset(seed=15, n_per_cell=3, families=("logic_order",)):
+            order = t.params["order"]
+            prec = [tuple(c) for c in t.params["constraints"] if c[0] == "before"]
+            if not prec:
+                continue
+            sols = 0
+            for p in itertools.permutations(order):
+                pos = {nm: i for i, nm in enumerate(p)}
+                if all(_satisfies(pos, c) for c in prec):
+                    sols += 1
+                    if sols > 1:
+                        break
+            assert sols > 1, f"{t.task_id}: precedence alone determines the order"
 
     def test_set_filter_count_is_correct(self):
         for t in generate_dataset(seed=13, n_per_cell=4, families=("set_filter",)):
@@ -125,31 +210,59 @@ class TestGroundTruth:
             assert 1 <= count <= n_rec - 2, f"{t.task_id}: degenerate count {count}"
 
     def test_set_filter_predicates_recount_from_prompt(self):
-        """Independently recount from the rendered table text."""
+        """Independently recount from the rendered table and condition text."""
         for t in generate_dataset(seed=14, n_per_cell=3, families=("set_filter",)):
             records = []
             for line in t.prompt.splitlines():
                 if line.startswith("- ") and "color=" in line:
                     attrs = line.split(": ", 1)[1]
                     d = dict(kv.split("=") for kv in attrs.split(", "))
+                    d["mass"] = int(d["mass"])
                     records.append(d)
             assert len(records) == t.params["n_records"]
-            n = sum(1 for r in records
-                    if all((r[f] != v) if neg else (r[f] == v)
-                           for f, v, neg in t.params["predicates"]))
+
+            def ev(r, atom):
+                f, op, v = atom
+                return r[f] > v if op == "gt" else r[f] == v
+
+            detail = t.params["predicate"]
+            atoms = [tuple(a) for a in detail["atoms"]]
+            if detail["shape"] == "and":
+                pred = lambda r: all(ev(r, a) for a in atoms)  # noqa: E731
+            elif detail["shape"] == "or_and":
+                g1, g2, mass = atoms
+                pred = lambda r: (ev(r, g1) or ev(r, g2)) and ev(r, mass)  # noqa: E731
+            else:
+                g1, mass, g2, tag = atoms
+                pred = lambda r: (  # noqa: E731
+                    (ev(r, g1) or ev(r, mass)) and not (ev(r, g2) and ev(r, tag)))
+
+            n = sum(1 for r in records if pred(r))
             assert str(n) == t.answer, t.task_id
+
+    def test_set_filter_condition_text_matches_predicate(self):
+        """The rendered condition must mention every atom actually evaluated,
+        so the model is not asked a different question from the one graded."""
+        for t in generate_dataset(seed=16, n_per_cell=3, families=("set_filter",)):
+            cond = t.prompt.split("following condition: ", 1)[1]
+            for f, op, v in (tuple(a) for a in t.params["predicate"]["atoms"]):
+                expect = f"{f} is greater than {v}" if op == "gt" else f"{f} is {v}"
+                assert expect in cond, f"{t.task_id}: {expect!r} missing from {cond!r}"
 
 
 class TestDifficultyLadder:
     def test_spec_is_monotone_in_complexity(self):
         a = DIFFICULTY_SPEC["arith_chain"]
         assert a[1]["n_ops"] < a[2]["n_ops"] < a[3]["n_ops"]
-        assert a[1]["n_distractors"] < a[3]["n_distractors"]
+        assert a[1]["n_backref"] < a[3]["n_backref"]
+        assert a[1]["n_cond"] <= a[3]["n_cond"]
+        assert not a[1]["interleave"] and a[3]["interleave"]
         lo = DIFFICULTY_SPEC["logic_order"]
         assert lo[1]["n_entities"] < lo[2]["n_entities"] < lo[3]["n_entities"]
+        assert lo[1]["n_gap"] <= lo[3]["n_gap"]
         sf = DIFFICULTY_SPEC["set_filter"]
         assert sf[1]["n_records"] < sf[2]["n_records"] < sf[3]["n_records"]
-        assert sf[1]["n_predicates"] < sf[3]["n_predicates"]
+        assert sf[1]["shape"] == "and" and sf[3]["shape"] == "or_and_not"
 
     def test_harder_prompts_are_longer(self):
         """A crude but real check that the manipulation changed the stimulus."""

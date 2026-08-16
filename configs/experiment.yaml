@@ -55,7 +55,17 @@ dataset:
   eval_split: "eval"
   # Pilot uses a disjoint split so that piloting cannot contaminate the main
   # analysis if the design changes in response to what the pilot shows.
-  pilot_split: "pilot"
+  #
+  # Pilot 2 runs on its own split. The generators were revised after Pilot 1
+  # (Addendum 3), so every instance differs anyway, but a distinct split name
+  # keeps the two pilots separable in the cache and makes it impossible to
+  # serve a Pilot 1 response as Pilot 2 data. Pilot 1 used "pilot" and its
+  # results are preserved at experiments/pilot1_results.json.
+  #
+  # PRE-REGISTERED TARGET, fixed before Pilot 2 was run: baseline (stage-1)
+  # accuracy in [0.60, 0.90]. The gate's own hard limits are unchanged at
+  # (0.05, 0.95); this narrower band is the design target, not a gate.
+  pilot_split: "pilot2"
   pilot_n_per_cell: 1
   # Purposive 8-task pilot sample: full difficulty range in two families, and
   # the extremes only in the third, to stay inside the 30-50 call pilot cap.

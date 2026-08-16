@@ -278,9 +278,13 @@ class CachedModel:
         )
         self.guard.record(result, condition)
 
-        # Cache successes and hard failures alike. Caching a failure prevents a
-        # re-run from silently re-spending budget on a request that already
-        # failed deterministically; failures are visible in the results file.
+        # Only successes are persisted; ResponseCache.put drops anything with
+        # ok=False. An earlier revision cached failures too, so that a rerun
+        # would not re-spend budget on a deterministically failing request. That
+        # traded a real correctness risk for a budget saving: the failure came
+        # back as an ordinary cache hit and entered the results as though it
+        # were model output. Failures are recorded in the results file instead,
+        # where they are visible, and a rerun re-issues the call.
         self.cache.put(key, {
             "text": result.text, "ok": result.ok, "error": result.error,
             "prompt_tokens": result.prompt_tokens,

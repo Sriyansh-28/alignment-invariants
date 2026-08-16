@@ -28,6 +28,8 @@ class ResponseCache:
         self.hits = 0
         self.misses = 0
         self.writes = 0
+        self.stale_failures = 0
+        self.rejected_writes = 0
 
     @staticmethod
     def make_key(request: dict[str, Any]) -> str:
@@ -55,10 +57,28 @@ class ResponseCache:
             # A corrupt entry must not silently poison the experiment.
             self.misses += 1
             return None
+        # A failed call is not experimental data. Older revisions cached
+        # failures and replayed them here as ordinary hits, so a rerun after a
+        # bad run (expired key, transient 5xx, a retired model) would silently
+        # serve those failures as if they were model output, with no live call
+        # and no budget spent to reveal the problem. Entries are now written
+        # only on success, and any non-ok entry left over from an older run is
+        # treated as a miss so the call is re-issued for real.
+        if not payload.get("ok", False):
+            self.stale_failures += 1
+            self.misses += 1
+            return None
         self.hits += 1
         return payload
 
     def put(self, key: str, value: dict[str, Any]) -> None:
+        # Only successful responses are experimental data, so only they are
+        # persisted. Writing failures would make a rerun reproduce the failure
+        # from disk instead of retrying it. Callers may pass a failure through
+        # unconditionally; it is dropped here rather than at each call site.
+        if not value.get("ok", False):
+            self.rejected_writes += 1
+            return
         p = self._path(key)
         # atomic write so an interrupted run cannot leave a half-written entry
         fd, tmp = tempfile.mkstemp(dir=str(p.parent), suffix=".tmp")
@@ -74,4 +94,6 @@ class ResponseCache:
 
     def stats(self) -> dict[str, int]:
         return {"cache_hits": self.hits, "cache_misses": self.misses,
-                "cache_writes": self.writes}
+                "cache_writes": self.writes,
+                "stale_failure_entries": self.stale_failures,
+                "rejected_failure_writes": self.rejected_writes}
