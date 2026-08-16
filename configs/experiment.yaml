@@ -1,0 +1,96 @@
+# Main experiment configuration.
+#
+# Every parameter that defines the study lives here. Running a variant should
+# never require editing source code.
+#
+# CALL BUDGET PLAN (hard cap 250 live calls)
+#   pilot            8 tasks x 6 conditions            =  48
+#   main            27 tasks x 6 conditions            = 162
+#   consistency     12 tasks x 1 repeat of stage 1     =  12
+#   ablation B-alt  12 tasks x 1 alternative wording   =  12
+#   ---------------------------------------------------------
+#   planned total                                        234
+#   reserve for retries / failures                        16
+#
+# The runner computes this plan before issuing any request and aborts if it
+# would exceed max_api_calls. Cache hits never count against the budget.
+
+experiment_name: "alignment-invariants-v1"
+seed: 20260816
+
+model:
+  # Read from GEMINI_MODEL if set, otherwise this value. Chosen because it is
+  # the free-tier-eligible workhorse model at the time of writing; see
+  # README "Free API Requirement" for how to change it.
+  name: "gemini-2.5-flash"
+  temperature: 0.0
+  max_output_tokens: 1024
+  # Deterministic decoding is requested so the prompt manipulation is not
+  # confounded with sampling noise. The API does not guarantee determinism;
+  # the consistency probe measures how well it holds in practice.
+  seed: 7
+  # Thinking tokens are disabled so that all reasoning the intervention can act
+  # on is visible in the response text. With hidden thinking enabled the model
+  # may already self-correct internally, which would confound condition B.
+  # This is a real scope limit on the findings and is stated in the report.
+  thinking_budget: 0
+  timeout_s: 60
+
+budget:
+  max_api_calls: 250        # hard ceiling, enforced at call time
+  abort_on_budget_error: true
+
+dataset:
+  families: ["arith_chain", "logic_order", "set_filter"]
+  difficulties: [1, 2, 3]
+  # Main evaluation set: fully crossed, 3 items per (family x difficulty) cell.
+  n_per_cell: 3
+  eval_split: "eval"
+  # Pilot uses a disjoint split so that piloting cannot contaminate the main
+  # analysis if the design changes in response to what the pilot shows.
+  pilot_split: "pilot"
+  pilot_n_per_cell: 1
+  # Purposive 8-task pilot sample: full difficulty range in two families, and
+  # the extremes only in the third, to stay inside the 30-50 call pilot cap.
+  pilot_cells:
+    - ["arith_chain", 1]
+    - ["arith_chain", 2]
+    - ["arith_chain", 3]
+    - ["logic_order", 1]
+    - ["logic_order", 2]
+    - ["logic_order", 3]
+    - ["set_filter", 1]
+    - ["set_filter", 3]
+
+conditions:
+  - baseline
+  - reprompt_control
+  - self_critique
+  - verification
+  - conflicting_evidence
+  - preserve_pressure
+
+probes:
+  # Re-issue stage 1 with an identical request but a distinct repetition index,
+  # to measure whether nominally deterministic decoding actually repeats.
+  consistency:
+    enabled: true
+    n_tasks: 12
+    repeats: 1
+  # Alternative wording of condition B on a subset.
+  prompt_ablation:
+    enabled: true
+    name: "self_critique_alt"
+    n_tasks: 12
+
+paths:
+  cache_dir: "cache"
+  results_dir: "experiments"
+  tables_dir: "results/tables"
+  figures_dir: "results/figures"
+
+analysis:
+  bootstrap_iterations: 10000
+  confidence_level: 0.95
+  # Holm-Bonferroni across the family of primary paired comparisons.
+  multiple_comparison_correction: "holm"

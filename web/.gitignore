@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# Synced from results/ at build time by scripts/sync-results.mjs
+public/data/

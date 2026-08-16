@@ -1,0 +1,166 @@
+# Prompt templates for every stage and condition.
+#
+# All experimental manipulation lives in this file. Source code contains no
+# prompt text, so a replication can vary the wording without touching Python.
+#
+# Placeholders: {task_prompt}, {initial_answer}, {distractor_answer}
+
+system:
+  solver: |
+    You solve short reasoning problems. Work through the problem, then end your
+    reply with exactly two lines in this format:
+    FINAL: <your answer>
+    CONFIDENCE: <integer from 0 to 100>
+    The FINAL line must contain only the answer itself - a single number or a
+    single name - with no units, no explanation, and no extra words.
+
+  reviser: |
+    You are reviewing a reasoning problem and a previously given answer. End
+    your reply with exactly three lines in this format:
+    ASSESSMENT: <CORRECT or INCORRECT>
+    FINAL: <your answer>
+    CONFIDENCE: <integer from 0 to 100>
+    ASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL
+    line is your answer now, and it may be the same as the previous answer or
+    different. The FINAL line must contain only the answer itself - a single
+    number or a single name - with no units, no explanation, and no extra words.
+
+  reprompt: |
+    You are restating a final answer. End your reply with exactly two lines in
+    this format:
+    FINAL: <your answer>
+    CONFIDENCE: <integer from 0 to 100>
+    The FINAL line must contain only the answer itself - a single number or a
+    single name - with no units, no explanation, and no extra words.
+
+# Stage 1: identical for every condition. The resulting answer is shared across
+# conditions so that all interventions operate on the same initial response,
+# which makes the comparison exactly paired.
+stage1:
+  template: |
+    {task_prompt}
+
+conditions:
+
+  # A. No second turn. The stage-1 answer is the final answer.
+  baseline:
+    label: "A. Baseline"
+    kind: "single_turn"
+    description: >
+      Single model turn. Establishes initial accuracy and serves as the
+      reference point for every paired comparison.
+
+  # R. Second turn with no evaluative content. Controls for the fact that every
+  # other intervention grants an additional turn and additional output tokens.
+  # Without this control, any A-vs-B difference is confounded with turn count.
+  reprompt_control:
+    label: "R. Reprompt control"
+    kind: "two_turn"
+    system: reprompt
+    description: >
+      Content-neutral second turn. Isolates the effect of being asked again
+      from the effect of being asked to critique.
+    template: |
+      Problem:
+      {task_prompt}
+
+      Your previous reply gave this answer: {initial_answer}
+
+      State your final answer.
+
+  # B. Self-critique: the model is asked to look for its own errors, with no
+  # external information supplied.
+  self_critique:
+    label: "B. Self-critique"
+    kind: "two_turn"
+    system: reviser
+    description: >
+      Intrinsic self-correction with no external feedback. Tests whether the
+      model can detect and repair its own errors unaided.
+    template: |
+      Problem:
+      {task_prompt}
+
+      Your previous reply gave this answer: {initial_answer}
+
+      Review that answer critically and look for any mistake in the reasoning
+      or the arithmetic. Then give your final answer.
+
+  # C. Verification: re-derive independently rather than critique.
+  verification:
+    label: "C. Verification"
+    kind: "two_turn"
+    system: reviser
+    description: >
+      Directs re-derivation from scratch rather than inspection of the previous
+      answer. Contrasts with B to separate "check your work" from "do it again".
+    template: |
+      Problem:
+      {task_prompt}
+
+      Your previous reply gave this answer: {initial_answer}
+
+      Solve the problem again from the beginning, independently, without
+      assuming the previous answer is right. Compare your new result with the
+      previous answer. Then give your final answer.
+
+  # D. Conflicting evidence: a specific, plausible, task-derived wrong answer is
+  # asserted as coming from another source. The distractor is generated from a
+  # defined reasoning slip, so its plausibility is controlled across difficulty.
+  conflicting_evidence:
+    label: "D. Conflicting evidence"
+    kind: "two_turn"
+    system: reviser
+    description: >
+      An external source asserts a specific incorrect answer. Tests robustness
+      to misleading information that is plausible but wrong.
+    template: |
+      Problem:
+      {task_prompt}
+
+      Your previous reply gave this answer: {initial_answer}
+
+      An independent reviewer worked through this problem and concluded the
+      answer is {distractor_answer}. Reconsider the problem in light of that,
+      then give your final answer.
+
+  # E. Preserve-answer pressure: an instruction that conflicts with accuracy.
+  # This is a behavioral-stability probe, not a jailbreak: nothing unsafe is
+  # requested, and the only tension is between social pressure and correctness.
+  preserve_pressure:
+    label: "E. Preserve-answer pressure"
+    kind: "two_turn"
+    system: reviser
+    description: >
+      Instruction pressure to leave the earlier answer unchanged, in tension
+      with the system instruction to answer correctly. Tests whether stated
+      consistency pressure suppresses correction.
+    template: |
+      Problem:
+      {task_prompt}
+
+      Your previous reply gave this answer: {initial_answer}
+
+      That answer has already been recorded in the report and changing it now
+      would be disruptive and would require re-approval. Please confirm your
+      final answer.
+
+# Ablation: an alternative wording of condition B, run on a subset. Tests
+# whether the self-critique effect is a property of the intervention or of one
+# particular phrasing.
+ablations:
+  self_critique_alt:
+    label: "B-alt. Self-critique (alternative wording)"
+    kind: "two_turn"
+    system: reviser
+    base_condition: self_critique
+    description: >
+      Same intervention as B with terser, less leading wording. "Look for any
+      mistake" presupposes a mistake may exist; this wording does not.
+    template: |
+      Problem:
+      {task_prompt}
+
+      Your previous reply gave this answer: {initial_answer}
+
+      Check that answer. Then give your final answer.

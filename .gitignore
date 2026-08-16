@@ -1,0 +1,54 @@
+# ---- Secrets: never commit ----
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+secrets.yaml
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- Node / Next.js ----
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# ---- OS / IDE ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ---- Project-specific ----
+# The response cache is intentionally COMMITTED so the experiment is
+# reproducible without re-spending API budget. See cache/README.md.
+# Only transient/lock files inside it are ignored.
+cache/*.lock
+cache/tmp/
+
+# Scratch
+scratch/
+tmp/
+*.tmp

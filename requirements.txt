@@ -1,0 +1,11 @@
+# Versions the experiment was developed and run against.
+# Only packages actually imported by the code are listed: the .env loader is
+# implemented in src/run_experiment.py, and tables are written with the stdlib
+# csv module, so python-dotenv and pandas are deliberately not dependencies.
+
+google-genai==2.18.1
+numpy==2.4.6
+scipy==1.17.1
+matplotlib==3.11.1
+PyYAML==6.0.1
+pytest==9.1.1

@@ -1,0 +1,146 @@
+[
+  {
+    "task_id": "eval-arith_chain-d1-000",
+    "family": "arith_chain",
+    "difficulty": 1,
+    "prompt": "A workshop starts the week with 10 helix units in store. A delivery adds 8 units. An order ships out 16 units.\n\nHow many helix units are in store at the end of the week?",
+    "answer": "2",
+    "distractor_answer": "18"
+  },
+  {
+    "task_id": "eval-arith_chain-d1-001",
+    "family": "arith_chain",
+    "difficulty": 1,
+    "prompt": "A workshop starts the week with 14 nozzle units in store. An order ships out 9 units. A delivery adds 20 units.\n\nHow many nozzle units are in store at the end of the week?",
+    "answer": "25",
+    "distractor_answer": "5"
+  },
+  {
+    "task_id": "eval-arith_chain-d2-000",
+    "family": "arith_chain",
+    "difficulty": 2,
+    "prompt": "A workshop starts the week with 24 piston units in store. Production multiplies the current stock by 3. A delivery adds 57 units. Production multiplies the current stock by 3. Production multiplies the current stock by 2. Separately, the workshop records 60 octant units, which are stored in a different building.\n\nHow many piston units are in store at the end of the week?",
+    "answer": "774",
+    "distractor_answer": "387"
+  },
+  {
+    "task_id": "eval-arith_chain-d2-001",
+    "family": "arith_chain",
+    "difficulty": 2,
+    "prompt": "A workshop starts the week with 32 gasket units in store. An order ships out 5 units. An order ships out 5 units. A delivery adds 58 units. Production multiplies the current stock by 3. Separately, the workshop records 36 magnet units, which are stored in a different building.\n\nHow many gasket units are in store at the end of the week?",
+    "answer": "240",
+    "distractor_answer": "80"
+  },
+  {
+    "task_id": "eval-arith_chain-d3-000",
+    "family": "arith_chain",
+    "difficulty": 3,
+    "prompt": "A workshop starts the week with 76 kiln units in store. A delivery adds 5 units. Production multiplies the current stock by 3. An order ships out 7 units. An order ships out 116 units. An order ships out 101 units. A delivery adds 118 units. Separately, the workshop records 193 dynamo units, which are stored in a different building. Separately, the workshop records 143 flask units, which are stored in a different building.\n\nHow many kiln units are in store at the end of the week?",
+    "answer": "137",
+    "distractor_answer": "19"
+  },
+  {
+    "task_id": "eval-arith_chain-d3-001",
+    "family": "arith_chain",
+    "difficulty": 3,
+    "prompt": "A workshop starts the week with 74 jigsaw units in store. An order ships out 19 units. Production multiplies the current stock by 2. An order ships out 51 units. An order ships out 13 units. An order ships out 15 units. An order ships out 10 units. Separately, the workshop records 139 octant units, which are stored in a different building. Separately, the workshop records 155 caliper units, which are stored in a different building.\n\nHow many jigsaw units are in store at the end of the week?",
+    "answer": "21",
+    "distractor_answer": "31"
+  },
+  {
+    "task_id": "eval-logic_order-d1-000",
+    "family": "logic_order",
+    "difficulty": 1,
+    "prompt": "4 technicians ran a calibration, each finishing at a distinct time.\narlen finished before gwilym.\ngwilym finished before isolde.\nisolde finished before dvora.\n\nWho finished in position 2 (position 1 = earliest)?",
+    "answer": "gwilym",
+    "distractor_answer": "isolde"
+  },
+  {
+    "task_id": "eval-logic_order-d1-001",
+    "family": "logic_order",
+    "difficulty": 1,
+    "prompt": "4 technicians ran a calibration, each finishing at a distinct time.\nkestrel finished before elowen.\nelowen finished before brisa.\njorvik finished before kestrel.\n\nWho finished in position 3 (position 1 = earliest)?",
+    "answer": "elowen",
+    "distractor_answer": "brisa"
+  },
+  {
+    "task_id": "eval-logic_order-d2-000",
+    "family": "logic_order",
+    "difficulty": 2,
+    "prompt": "5 technicians ran a calibration, each finishing at a distinct time.\ndvora finished before fenwick.\njorvik finished before arlen.\narlen finished before dvora.\ngwilym finished before fenwick.\ndvora finished before gwilym.\n\nWho finished in position 2 (position 1 = earliest)?",
+    "answer": "arlen",
+    "distractor_answer": "dvora"
+  },
+  {
+    "task_id": "eval-logic_order-d2-001",
+    "family": "logic_order",
+    "difficulty": 2,
+    "prompt": "5 technicians ran a calibration, each finishing at a distinct time.\nelowen finished before fenwick.\nhavard finished before isolde.\nfenwick finished before lumen.\nfenwick finished before havard.\nisolde finished before lumen.\n\nWho finished in position 5 (position 1 = earliest)?",
+    "answer": "lumen",
+    "distractor_answer": "isolde"
+  },
+  {
+    "task_id": "eval-logic_order-d3-000",
+    "family": "logic_order",
+    "difficulty": 3,
+    "prompt": "6 technicians ran a calibration, each finishing at a distinct time.\nfenwick finished before gwilym.\nbrisa finished before fenwick.\ngwilym finished before jorvik.\ncoden finished before fenwick.\nkestrel finished before brisa.\nkestrel finished before coden.\nbrisa finished before coden.\n\nWho finished in position 4 (position 1 = earliest)?",
+    "answer": "fenwick",
+    "distractor_answer": "gwilym"
+  },
+  {
+    "task_id": "eval-logic_order-d3-001",
+    "family": "logic_order",
+    "difficulty": 3,
+    "prompt": "6 technicians ran a calibration, each finishing at a distinct time.\njorvik finished before kestrel.\nbrisa finished before elowen.\nisolde finished before brisa.\njorvik finished before isolde.\nkestrel finished before brisa.\nkestrel finished before havard.\nhavard finished before isolde.\n\nWho finished in position 5 (position 1 = earliest)?",
+    "answer": "brisa",
+    "distractor_answer": "elowen"
+  },
+  {
+    "task_id": "eval-set_filter-d1-000",
+    "family": "set_filter",
+    "difficulty": 1,
+    "prompt": "An inventory lists 5 components:\n- piston: color=jade, size=large, tag=vented\n- dynamo: color=russet, size=medium, tag=vented\n- quartz: color=amber, size=large, tag=sealed\n- ingot: color=amber, size=large, tag=vented\n- gasket: color=cobalt, size=small, tag=vented\n\nHow many components satisfy all of the following: tag is sealed?",
+    "answer": "1",
+    "distractor_answer": "2"
+  },
+  {
+    "task_id": "eval-set_filter-d1-001",
+    "family": "set_filter",
+    "difficulty": 1,
+    "prompt": "An inventory lists 5 components:\n- magnet: color=amber, size=medium, tag=vented\n- dynamo: color=russet, size=small, tag=vented\n- piston: color=cobalt, size=medium, tag=sealed\n- etcher: color=jade, size=medium, tag=sealed\n- caliper: color=russet, size=large, tag=sealed\n\nHow many components satisfy all of the following: color is cobalt?",
+    "answer": "1",
+    "distractor_answer": "2"
+  },
+  {
+    "task_id": "eval-set_filter-d2-000",
+    "family": "set_filter",
+    "difficulty": 2,
+    "prompt": "An inventory lists 8 components:\n- magnet: color=amber, size=large, tag=sealed\n- quartz: color=amber, size=large, tag=sealed\n- gasket: color=jade, size=small, tag=vented\n- ingot: color=cobalt, size=small, tag=sealed\n- dynamo: color=amber, size=small, tag=sealed\n- kiln: color=cobalt, size=large, tag=vented\n- lathe: color=cobalt, size=small, tag=sealed\n- flask: color=cobalt, size=small, tag=sealed\n\nHow many components satisfy all of the following: tag is sealed and size is large?",
+    "answer": "2",
+    "distractor_answer": "3"
+  },
+  {
+    "task_id": "eval-set_filter-d2-001",
+    "family": "set_filter",
+    "difficulty": 2,
+    "prompt": "An inventory lists 8 components:\n- caliper: color=russet, size=medium, tag=vented\n- beaker: color=jade, size=large, tag=vented\n- octant: color=russet, size=medium, tag=vented\n- piston: color=cobalt, size=medium, tag=vented\n- quartz: color=cobalt, size=small, tag=vented\n- lathe: color=russet, size=medium, tag=sealed\n- kiln: color=cobalt, size=large, tag=sealed\n- nozzle: color=russet, size=small, tag=sealed\n\nHow many components satisfy all of the following: size is large and color is cobalt?",
+    "answer": "1",
+    "distractor_answer": "2"
+  },
+  {
+    "task_id": "eval-set_filter-d3-000",
+    "family": "set_filter",
+    "difficulty": 3,
+    "prompt": "An inventory lists 11 components:\n- quartz: color=amber, size=small, tag=vented\n- kiln: color=jade, size=large, tag=vented\n- octant: color=russet, size=large, tag=vented\n- etcher: color=amber, size=small, tag=sealed\n- piston: color=russet, size=medium, tag=vented\n- magnet: color=cobalt, size=large, tag=vented\n- nozzle: color=russet, size=small, tag=sealed\n- caliper: color=amber, size=large, tag=vented\n- dynamo: color=amber, size=medium, tag=sealed\n- beaker: color=russet, size=medium, tag=sealed\n- flask: color=jade, size=medium, tag=sealed\n\nHow many components satisfy all of the following: color is russet and tag is vented and size is not medium?",
+    "answer": "1",
+    "distractor_answer": "2"
+  },
+  {
+    "task_id": "eval-set_filter-d3-001",
+    "family": "set_filter",
+    "difficulty": 3,
+    "prompt": "An inventory lists 11 components:\n- flask: color=cobalt, size=small, tag=vented\n- beaker: color=jade, size=large, tag=sealed\n- piston: color=amber, size=medium, tag=sealed\n- caliper: color=russet, size=medium, tag=sealed\n- gasket: color=cobalt, size=medium, tag=vented\n- dynamo: color=cobalt, size=large, tag=vented\n- nozzle: color=amber, size=small, tag=sealed\n- lathe: color=russet, size=medium, tag=sealed\n- octant: color=amber, size=small, tag=sealed\n- quartz: color=amber, size=medium, tag=sealed\n- magnet: color=amber, size=small, tag=sealed\n\nHow many components satisfy all of the following: color is cobalt and size is large and tag is not sealed?",
+    "answer": "1",
+    "distractor_answer": "2"
+  }
+]
