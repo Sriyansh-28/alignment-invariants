@@ -186,10 +186,14 @@ cp .env.example .env        # then add your key from https://aistudio.google.com
 # See the exact call plan without spending anything
 python -m src.run_experiment --config configs/experiment.yaml --phase pilot --dry-run
 
-# Pilot (48 calls), then inspect before committing the rest of the budget
+# Pilot (48 calls)
 python -m src.run_experiment --config configs/experiment.yaml --phase pilot
 
-# Main experiment (≤186 calls)
+# Validate the pilot BEFORE spending the rest of the budget.
+# Exits non-zero if any gate fails, so it can guard the main run.
+python -m analysis.pilot_gate --results experiments/pilot_results.json
+
+# Main experiment (≤186 calls) — only after the gate passes
 python -m src.run_experiment --config configs/experiment.yaml --phase main
 
 # Analysis: tables, figures, failure categorization
@@ -272,6 +276,18 @@ Cost control is enforced in code, not by convention:
 - Rate limits and transient errors are retried with exponential backoff and jitter; an invalid key fails fast without burning retries.
 
 Planned budget: pilot 48 + main 186 = **234 of 250**, leaving 16 in reserve.
+
+### The pilot gate
+
+The main run is gated on the pilot. `analysis/pilot_gate.py` mechanically checks five conditions before the remaining budget is spent, and exits non-zero if any fail:
+
+1. **Ground truth is valid** — answers non-empty and normalized, distractors distinct from truth, integer answers parse as integers.
+2. **Metrics are computable** — initial accuracy defined, and the baseline actually produced errors (otherwise every correction rate has an empty denominator).
+3. **Conditions are meaningfully different** — at least one intervention moves at least one answer; inert manipulations are flagged.
+4. **No obvious confound** — accuracy is off both ceiling and floor, and the difficulty profile is inspected (a non-monotone ladder is surfaced loudly, since it would make every difficulty claim uninterpretable).
+5. **Response format is stable** — format compliance and parse rate above threshold, zero failed calls, and the distinct-confidence-value count checked against the pre-registered ECE gate.
+
+A failed gate means fixing the design and re-piloting, with the change recorded in `research/hypotheses.md` — not adjusting thresholds until it passes.
 
 ---
 
