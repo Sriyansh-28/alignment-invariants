@@ -45,6 +45,15 @@
       "successful": 48,
       "failed": 0,
       "note": "Revision 2 generators; 48/48 at stage 1, gate failed 2/5"
+    },
+    {
+      "utc": "2026-08-16T19:56:30+00:00",
+      "kind": "pilot",
+      "label": "pilot3",
+      "calls": 24,
+      "successful": 24,
+      "failed": 0,
+      "note": "model=gemini-3.1-flash-lite, phase=pilot"
     }
   ]
 }

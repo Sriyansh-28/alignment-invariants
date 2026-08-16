@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 141,
+  "prompt_sha256": "c27a17fb773b3feabe17c1d8b3d4b35717d6bfc23623d5ccfbcae05da41ce651",
+  "prompt_tokens": 290,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem briefly, then\nend your reply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the second earliest shipment, we list the dates in chronological order:\n\n1.  Shipment C: 07/02/2029 (February 7th)\n2.  Shipment A: 08/04/2029 (April 8th)\n3.  Shipment B: 10/04/2029 (April 10th)\n4.  Shipment D: 07/12/2029 (December 7th)\n\nThe earliest is C, and the second earliest is A.\n\nFINAL: A\nCONFIDENCE: 100",
+  "total_tokens": 431
+}

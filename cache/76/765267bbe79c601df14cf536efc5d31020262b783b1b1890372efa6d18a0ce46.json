@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 115,
+  "prompt_sha256": "3efb4145755afb561ab6b186af6467a32e84f47f6284b4b6814c3c4fadb8e210",
+  "prompt_tokens": 286,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "The records provided are:\n- 14 August: mass 165, count 25\n- 2 March: mass 163, count 38\n- 23 January: mass 171, count 58\n\nComparing the revision dates (14 August, 2 March, 23 January), the latest date is 14 August. Therefore, the record with the mass of 165 is the authoritative one.\n\nFINAL: 165\nCONFIDENCE: 100",
+  "total_tokens": 401
+}
