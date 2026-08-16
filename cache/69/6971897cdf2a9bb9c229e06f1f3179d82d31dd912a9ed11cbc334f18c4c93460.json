@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 288,
+  "prompt_sha256": "7a763b44fc69ecf1ef02cf0f64506c5d0a3d3edcf92314f7824935d00b62fb37",
+  "prompt_tokens": 291,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem, then end your\nreply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the criteria (tag=sealed, size=medium, color\u2260amber), let's evaluate each component:\n\n1.  **etcher**: cobalt, small, sealed (Fails: size)\n2.  **beaker**: cobalt, medium, sealed (Matches: tag=sealed, size=medium, color=cobalt\u2260amber)\n3.  **octant**: amber, medium, sealed (Fails: color=amber)\n4.  **caliper**: russet, large, vented (Fails: tag, size)\n5.  **piston**: jade, small, vented (Fails: tag, size)\n6.  **quartz**: amber, large, sealed (Fails: size, color)\n7.  **helix**: russet, medium, vented (Fails: tag)\n8.  **dynamo**: cobalt, small, sealed (Fails: size)\n9.  **nozzle**: cobalt, large, sealed (Fails: size)\n10. **gasket**: jade, small, vented (Fails: tag, size)\n11. **ingot**: amber, small, vented (Fails: tag, size, color)\n\nOnly the **beaker** satisfies all three conditions.\n\nFINAL: 1\nCONFIDENCE: 100",
+  "total_tokens": 579
+}

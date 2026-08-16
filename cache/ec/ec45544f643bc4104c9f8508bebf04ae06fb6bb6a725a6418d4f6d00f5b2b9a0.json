@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 61,
+  "prompt_sha256": "5a520a8e61933229dfedbe0b7e14f3da20282c94400cbbbe9a2c40e95d1414f9",
+  "prompt_tokens": 143,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To calculate the remaining caliper units:\n1. Starting amount: 13\n2. First shipment: 13 - 1 = 12\n3. Second shipment: 12 - 10 = 2\n\nFINAL: 2\nCONFIDENCE: 100",
+  "total_tokens": 204
+}

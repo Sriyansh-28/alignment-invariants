@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 96,
+  "prompt_sha256": "c471cc2c0101ad200de470b2fb4423b5d98f91c9ed590a1c9f11a106338077da",
+  "prompt_tokens": 128,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem, then end your\nreply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To find the number of caliper units remaining in the workshop, we start with the initial amount and subtract the units that were shipped out.\n\n1.  Initial units: 13\n2.  First shipment: 13 - 1 = 12\n3.  Second shipment: 12 - 10 = 2\n\nThere are 2 caliper units remaining in the store.\n\nFINAL: 2\nCONFIDENCE: 100",
+  "total_tokens": 224
+}

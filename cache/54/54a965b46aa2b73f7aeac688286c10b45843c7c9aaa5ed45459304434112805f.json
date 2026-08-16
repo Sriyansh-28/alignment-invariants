@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 209,
+  "prompt_sha256": "27efa92659bf7329e93d81dfd39a8e3f87391ef6e091c64e6c0c7357852d8418",
+  "prompt_tokens": 305,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To calculate the number of magnet units:\n\n1.  Start: 152\n2.  Ship out 43: 152 - 43 = 109\n3.  Multiply by 3: 109 * 3 = 327\n4.  Ship out 156: 327 - 156 = 171\n5.  Ship out 116: 171 - 116 = 55\n6.  Delivery adds 151: 55 + 151 = 206\n7.  Ship out 173: 206 - 173 = 33\n\nThe etcher units and dynamo units are stored in different buildings and are not part of the magnet unit count. The calculation results in 33.\n\nASSESSMENT: CORRECT\nFINAL: 33\nCONFIDENCE: 100",
+  "total_tokens": 514
+}

@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 118,
+  "prompt_sha256": "4b9445fad6bda5d831d9898c8c8fe98c931fe08d78805e8201b4f7ccb228a144",
+  "prompt_tokens": 212,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the number of caliper units remaining in the store, we start with the initial inventory and subtract the units that were shipped out.\n\n1. Initial inventory: 13 units.\n2. First shipment: 13 - 1 = 12 units remaining.\n3. Second shipment: 12 - 10 = 2 units remaining.\n\nThe arithmetic is 13 - 1 - 10 = 2. The previous answer was correct.\n\nASSESSMENT: CORRECT\nFINAL: 2\nCONFIDENCE: 100",
+  "total_tokens": 330
+}

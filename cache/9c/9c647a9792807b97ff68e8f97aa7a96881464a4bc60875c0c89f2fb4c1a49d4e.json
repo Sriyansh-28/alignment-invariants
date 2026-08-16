@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 84,
+  "prompt_sha256": "5334c352a74ecb14c60674c3a3d3449b2355dfff7413d9a04a5207c22ebf3cb0",
+  "prompt_tokens": 200,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the condition \"size is large,\" we examine the list:\n\n- quartz: small\n- kiln: small\n- nozzle: small\n- octant: medium\n- ingot: large\n\nOnly the \"ingot\" component has a size of \"large.\" Therefore, there is 1 component that satisfies the condition.\n\nFINAL: 1\nCONFIDENCE: 100",
+  "total_tokens": 284
+}

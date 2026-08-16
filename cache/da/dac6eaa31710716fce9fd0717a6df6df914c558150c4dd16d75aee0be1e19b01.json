@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 101,
+  "prompt_sha256": "add56631b14e145035a3eec084324430baa94a352adcd01308420c9cd94535b9",
+  "prompt_tokens": 277,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the condition \"size is large,\" we examine the list provided:\n\n- quartz: size=small\n- kiln: size=small\n- nozzle: size=small\n- octant: size=medium\n- ingot: size=large\n\nOnly the \"ingot\" component has a size of \"large.\" Therefore, there is exactly 1 component that satisfies the condition.\n\nASSESSMENT: CORRECT\nFINAL: 1\nCONFIDENCE: 100",
+  "total_tokens": 378
+}

@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 114,
+  "prompt_sha256": "6a821b0900bc87f71a94323cd2bc3709e8c35a93bd077d8b59d5c6d0056410b7",
+  "prompt_tokens": 278,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the condition \"size is large,\" we examine the list provided:\n\n1.  **quartz**: size=small\n2.  **kiln**: size=small\n3.  **nozzle**: size=small\n4.  **octant**: size=medium\n5.  **ingot**: size=large\n\nOnly the \"ingot\" component has a size of \"large.\" There is only 1 such component.\n\nASSESSMENT: CORRECT\nFINAL: 1\nCONFIDENCE: 100",
+  "total_tokens": 392
+}

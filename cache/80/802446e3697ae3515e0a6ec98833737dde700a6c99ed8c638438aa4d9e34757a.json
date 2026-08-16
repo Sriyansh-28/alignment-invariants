@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 312,
+  "prompt_sha256": "e004e2ec5e237aba5e58d6ca7b807d2fd0e34d39f15d6e79b8aeddb41fb02636",
+  "prompt_tokens": 306,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the criteria (tag is sealed, size is medium, and color is not amber), we evaluate each component:\n\n1.  **etcher**: cobalt, small, sealed (Fails: size is not medium)\n2.  **beaker**: cobalt, medium, sealed (Passes: sealed, medium, not amber)\n3.  **octant**: amber, medium, sealed (Fails: color is amber)\n4.  **caliper**: russet, large, vented (Fails: tag is vented, size is large)\n5.  **piston**: jade, small, vented (Fails: tag is vented, size is small)\n6.  **quartz**: amber, large, sealed (Fails: color is amber, size is large)\n7.  **helix**: russet, medium, vented (Fails: tag is vented)\n8.  **dynamo**: cobalt, small, sealed (Fails: size is small)\n9.  **nozzle**: cobalt, large, sealed (Fails: size is large)\n10. **gasket**: jade, small, vented (Fails: tag is vented, size is small)\n11. **ingot**: amber, small, vented (Fails: tag is vented, size is small, color is amber)\n\nOnly the **beaker** satisfies all three conditions.\n\nFINAL: 1\nCONFIDENCE: 100",
+  "total_tokens": 618
+}

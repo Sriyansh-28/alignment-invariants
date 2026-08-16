@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 113,
+  "prompt_sha256": "4a0787d295fa2744cc5e747a9e5558bd63cfa04005450d24c8e18cbb69eae29a",
+  "prompt_tokens": 185,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem, then end your\nreply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the condition \"size is large,\" we examine the list provided:\n\n1.  **quartz**: size=small\n2.  **kiln**: size=small\n3.  **nozzle**: size=small\n4.  **octant**: size=medium\n5.  **ingot**: size=large\n\nOnly the \"ingot\" component has a size of \"large.\" Therefore, there is 1 component that satisfies the condition.\n\nFINAL: 1\nCONFIDENCE: 100",
+  "total_tokens": 298
+}
