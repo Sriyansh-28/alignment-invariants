@@ -102,6 +102,31 @@ class BudgetLedger:
         self._write()
         return entry
 
+    def set_cap(self, new_cap: int, reason: str) -> None:
+        """Change the study cap, leaving an audit entry.
+
+        Deliberately awkward: the cap is the study's headline budget number, and
+        a run that could quietly raise its own ceiling would not have a ceiling.
+        Changing it is a research decision, so it takes an explicit call with a
+        stated reason, recorded as a zero-call entry in the same history as the
+        spending. Lowering the cap below what is already spent is refused --
+        that would silently invalidate the record rather than constrain it.
+        """
+        if new_cap < self.total_calls():
+            raise LedgerExceededError(
+                f"cannot set cap to {new_cap}: {self.total_calls()} calls are "
+                f"already recorded"
+            )
+        old = self.hard_cap
+        self.hard_cap = new_cap
+        self.data["hard_cap"] = new_cap
+        self.data["entries"].append({
+            "utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "kind": "cap_change", "label": f"{old} -> {new_cap}",
+            "calls": 0, "successful": 0, "failed": 0, "note": reason,
+        })
+        self._write()
+
     def _write(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         fd, tmp = tempfile.mkstemp(dir=str(self.path.parent), suffix=".tmp")
@@ -113,3 +138,38 @@ class BudgetLedger:
             if os.path.exists(tmp):
                 os.unlink(tmp)
             raise
+
+
+def _main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    ap = argparse.ArgumentParser(description="Inspect or adjust the study budget ledger.")
+    ap.add_argument("--ledger", default=DEFAULT_LEDGER)
+    ap.add_argument("--set-cap", type=int, default=None,
+                    help="Change the study cap. Requires --reason.")
+    ap.add_argument("--reason", default="", help="Why the cap is changing.")
+    args = ap.parse_args(argv)
+
+    led = BudgetLedger(args.ledger)
+    if args.set_cap is not None:
+        if not args.reason.strip():
+            print("ERROR: --set-cap requires --reason", file=__import__("sys").stderr)
+            return 2
+        led.set_cap(args.set_cap, args.reason.strip())
+        print(f"cap set to {args.set_cap}")
+
+    t = led.totals()
+    print(f"study cap        : {t['hard_cap']}")
+    print(f"spent (requests) : {t['total_calls']}")
+    print(f"  successful     : {t['successful']}")
+    print(f"  failed         : {t['failed']}")
+    print(f"remaining        : {t['remaining']}")
+    print(f"by kind          : {t['by_kind']}")
+    print(f"entries          : {t['entries']}")
+    for e in led.data["entries"]:
+        print(f"  {e['utc']}  {e['kind']:12s} {e['label']:24s} {e['calls']:4d}  {e['note']}")
+    return 0
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(_main())

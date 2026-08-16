@@ -33,6 +33,18 @@ class APIKeyError(RuntimeError):
     """Raised when the key is missing or rejected by the service."""
 
 
+class QuotaExhaustedError(RuntimeError):
+    """Raised when the free-tier quota is spent and the run should stop.
+
+    Distinct from ``BudgetExceededError``, which is the study's own accounting.
+    This one means the provider is refusing work until the quota window resets.
+    Grinding on through the remaining items would issue hundreds of requests
+    that can only fail, and each attempt still counts against the quota, so the
+    run stops immediately. Everything already succeeded is in the cache, so the
+    next session resumes instead of repeating.
+    """
+
+
 @dataclass
 class CallResult:
     text: str
@@ -52,6 +64,11 @@ class BudgetGuard:
 
     max_calls: int
     live_calls: int = 0
+    # Requests actually issued to the provider. A call that was retried through
+    # a rate limit consumed several requests, and the free-tier quota is charged
+    # per request, so the two numbers diverge exactly when it matters most. The
+    # ledger is debited with this one.
+    api_requests: int = 0
     successful: int = 0
     failed: int = 0
     cache_hits: int = 0
@@ -74,6 +91,7 @@ class BudgetGuard:
             self.cache_hits += 1
             return
         self.live_calls += 1
+        self.api_requests += max(1, result.attempts)
         self.per_condition[condition] = self.per_condition.get(condition, 0) + 1
         if result.ok:
             self.successful += 1
@@ -86,6 +104,7 @@ class BudgetGuard:
         return {
             "max_calls": self.max_calls,
             "live_calls": self.live_calls,
+            "api_requests": self.api_requests,
             "successful_calls": self.successful,
             "failed_calls": self.failed,
             "cache_hits": self.cache_hits,
@@ -233,10 +252,17 @@ class CachedModel:
         # output for model output.
         self.namespace = namespace
 
-    def call(self, *, prompt: str, system: str | None, temperature: float,
-             max_output_tokens: int, seed: int | None, thinking_budget: int | None,
-             condition: str, rep: int = 0) -> CallResult:
-        request = {
+    def build_request(self, *, prompt: str, system: str | None, temperature: float,
+                      max_output_tokens: int, seed: int | None,
+                      thinking_budget: int | None, rep: int = 0) -> dict[str, Any]:
+        """The exact request dict the cache key is derived from.
+
+        Exposed so the resume planner can ask "is this already cached?" using
+        the same key derivation as the call path. If the planner built keys its
+        own way the two could drift, and a resume would either repeat paid calls
+        or under-reserve budget.
+        """
+        return {
             "namespace": self.namespace,
             "model": self.model,
             "prompt": prompt,
@@ -247,6 +273,19 @@ class CachedModel:
             "thinking_budget": thinking_budget,
             "rep": rep,
         }
+
+    def is_cached(self, **kw: Any) -> bool:
+        """True when this exact request already has a successful cache entry."""
+        return self.cache.peek(self.cache.make_key(self.build_request(**kw)))
+
+    def call(self, *, prompt: str, system: str | None, temperature: float,
+             max_output_tokens: int, seed: int | None, thinking_budget: int | None,
+             condition: str, rep: int = 0) -> CallResult:
+        request = self.build_request(
+            prompt=prompt, system=system, temperature=temperature,
+            max_output_tokens=max_output_tokens, seed=seed,
+            thinking_budget=thinking_budget, rep=rep,
+        )
         key = self.cache.make_key(request)
         cached = self.cache.get(key)
         if cached is not None:
@@ -294,6 +333,19 @@ class CachedModel:
             "request": {k: v for k, v in request.items() if k != "prompt"},
             "prompt_sha256": ResponseCache.make_key({"p": prompt}),
         })
+
+        # Quota exhaustion ends the session rather than the item. The provider
+        # has already been retried with backoff inside generate(); if it is
+        # still refusing, every remaining item would fail the same way and each
+        # attempt would keep charging against the quota. Stopping here leaves
+        # the cache holding every success so far, which is what makes the next
+        # session a resume rather than a restart.
+        if not result.ok and result.error == "rate_limited":
+            raise QuotaExhaustedError(
+                "provider is rate limiting after retries (free-tier quota "
+                "appears spent). Stopping so the run can resume after the quota "
+                "window resets; completed calls are cached."
+            )
         return result
 
 

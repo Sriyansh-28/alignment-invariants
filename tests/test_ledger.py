@@ -77,3 +77,24 @@ def test_repo_ledger_accounts_for_every_prior_run():
     assert "diagnostic" in kinds, "diagnostic calls are missing from the ledger"
     assert "pilot" in kinds
     assert led.total_calls() == sum(kinds.values())
+
+
+def test_set_cap_requires_a_reason_and_is_audited(tmp_path):
+    led = BudgetLedger(tmp_path / "l.json", hard_cap=250)
+    led.record(kind="pilot", label="p", calls=100)
+    led.set_cap(400, reason="preregistered main design needs 240 more calls")
+    assert led.hard_cap == 400 and led.remaining() == 300
+    audit = [e for e in led.data["entries"] if e["kind"] == "cap_change"]
+    assert len(audit) == 1
+    assert audit[0]["calls"] == 0, "a cap change must not be counted as spend"
+    assert "preregistered" in audit[0]["note"]
+    # and it survives a reload
+    assert BudgetLedger(tmp_path / "l.json").hard_cap == 400
+
+
+def test_cap_cannot_be_lowered_below_recorded_spend(tmp_path):
+    led = BudgetLedger(tmp_path / "l.json", hard_cap=250)
+    led.record(kind="pilot", label="p", calls=130)
+    with pytest.raises(LedgerExceededError):
+        led.set_cap(100, reason="nope")
+    assert led.hard_cap == 250

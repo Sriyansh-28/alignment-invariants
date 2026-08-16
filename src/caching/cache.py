@@ -71,6 +71,35 @@ class ResponseCache:
         self.hits += 1
         return payload
 
+    def get_raw(self, key: str) -> dict[str, Any] | None:
+        """Read a successful entry without touching the hit/miss counters."""
+        p = self._path(key)
+        if not p.exists():
+            return None
+        try:
+            with p.open("r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+        except (json.JSONDecodeError, OSError):
+            return None
+        return payload if payload.get("ok", False) else None
+
+    def peek(self, key: str) -> bool:
+        """Is there a usable (successful) entry for this key?
+
+        Deliberately does not touch the hit/miss counters: the resume planner
+        inspects every request in the experiment before any of them is issued,
+        and counting those inspections as cache activity would make the run's
+        own statistics meaningless.
+        """
+        p = self._path(key)
+        if not p.exists():
+            return False
+        try:
+            with p.open("r", encoding="utf-8") as fh:
+                return bool(json.load(fh).get("ok", False))
+        except (json.JSONDecodeError, OSError):
+            return False
+
     def put(self, key: str, value: dict[str, Any]) -> None:
         # Only successful responses are experimental data, so only they are
         # persisted. Writing failures would make a rerun reproduce the failure

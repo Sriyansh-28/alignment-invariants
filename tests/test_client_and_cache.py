@@ -163,10 +163,23 @@ class TestBudget:
 
     def test_failures_still_count_against_the_budget(self, tmp_path):
         """A failed call costs quota, so it must be counted or the cap leaks."""
-        bad = CallResult(text="", from_cache=False, ok=False, error="rate_limited")
+        bad = CallResult(text="", from_cache=False, ok=False, error="server_error")
         model, guard, _ = make_model(tmp_path, provider=FakeProvider(bad))
         model.call(**CALL)
         assert guard.live_calls == 1 and guard.failed == 1 and guard.successful == 0
+
+    def test_quota_failure_is_debited_before_the_run_stops(self, tmp_path):
+        """Hitting the quota ends the session, but the request it took to find
+        that out was still spent and must be on the books."""
+        from src.gemini.client import QuotaExhaustedError
+        bad = CallResult(text="", from_cache=False, ok=False,
+                         error="rate_limited", attempts=4)
+        model, guard, cache = make_model(tmp_path, provider=FakeProvider(bad))
+        with pytest.raises(QuotaExhaustedError):
+            model.call(**CALL)
+        assert guard.live_calls == 1 and guard.failed == 1
+        assert guard.api_requests == 4, "retried attempts were not charged"
+        assert cache.writes == 0, "a quota failure was cached"
 
     def test_per_condition_accounting(self, tmp_path):
         model, guard, _ = make_model(tmp_path)
