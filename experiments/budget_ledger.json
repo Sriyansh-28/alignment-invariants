@@ -1,5 +1,5 @@
 {
-  "hard_cap": 250,
+  "hard_cap": 370,
   "entries": [
     {
       "utc": "2026-08-16T19:50:50+00:00",
@@ -54,6 +54,15 @@
       "successful": 24,
       "failed": 0,
       "note": "model=gemini-3.1-flash-lite, phase=pilot"
+    },
+    {
+      "utc": "2026-08-16T20:09:35+00:00",
+      "kind": "cap_change",
+      "label": "250 -> 370",
+      "calls": 0,
+      "successful": 0,
+      "failed": 0,
+      "note": "Preregistered main design requires 240 additional calls after pilot validation; free-tier only; experiment will resume across quota windows."
     }
   ]
 }
