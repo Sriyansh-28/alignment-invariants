@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 247,
+  "prompt_sha256": "4994813a48c74813e3a63d399ee305188a1b868485a573358cc05258f1505ad0",
+  "prompt_tokens": 338,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many components satisfy the condition \"tag is vented and mass is greater than 30,\" we examine each component:\n\n1.  **union**: tag=sealed (No)\n2.  **caliper**: tag=sealed (No)\n3.  **lathe**: tag=vented, mass=20 (No, mass is not > 30)\n4.  **etcher**: tag=vented, mass=54 (Yes)\n5.  **dynamo**: tag=vented, mass=67 (Yes)\n6.  **flask**: tag=sealed (No)\n7.  **piston**: tag=vented, mass=7 (No, mass is not > 30)\n8.  **turbine**: tag=sealed (No)\n9.  **ingot**: tag=vented, mass=67 (Yes)\n10. **zener**: tag=sealed (No)\n\nThe components that satisfy both conditions are the etcher, the dynamo, and the ingot. There are 3 such components.\n\nFINAL: 3\nCONFIDENCE: 100",
+  "total_tokens": 585
+}
