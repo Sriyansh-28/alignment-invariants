@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 118,
+  "prompt_sha256": "b622dfaf6691e6f85aa685023dfb881182c6d5a2a660ed0bb8c62c3d74a25958",
+  "prompt_tokens": 285,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "The shipment dates are:\n- Shipment A: 06/07/2027 (July 6, 2027)\n- Shipment B: 04/09/2027 (September 4, 2027)\n- Shipment C: 05/11/2027 (November 5, 2027)\n\nComparing the dates, July 6, 2027, is the earliest date.\n\nFINAL: A\nCONFIDENCE: 100",
+  "total_tokens": 403
+}

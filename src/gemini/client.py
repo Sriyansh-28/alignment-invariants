@@ -77,14 +77,24 @@ class BudgetGuard:
     per_condition: dict[str, int] = field(default_factory=dict)
 
     def check(self, n: int = 1) -> None:
-        if self.live_calls + n > self.max_calls:
+        # Enforced on requests actually issued, not on logical calls. The main
+        # experiment showed why: 240 logical calls needed 259 requests because
+        # 19 of them were retried through transient errors, and a guard counting
+        # calls waved all 259 through against a cap of 240. The quota is charged
+        # per request, so the request count is the one that has to be bounded.
+        #
+        # A call already in flight can still add retries after this check, so
+        # the overshoot is bounded by the retry limit of a single call rather
+        # than being zero. Bounding it exactly would mean reserving max_retries
+        # for every call and leaving most of that reservation unused.
+        if self.api_requests + n > self.max_calls:
             raise BudgetExceededError(
-                f"refusing call: {self.live_calls} live calls already made, "
-                f"hard cap is {self.max_calls}"
+                f"refusing call: {self.api_requests} API requests already issued "
+                f"({self.live_calls} logical calls), hard cap is {self.max_calls}"
             )
 
     def remaining(self) -> int:
-        return self.max_calls - self.live_calls
+        return self.max_calls - self.api_requests
 
     def record(self, result: CallResult, condition: str) -> None:
         if result.from_cache:

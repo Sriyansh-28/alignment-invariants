@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 67,
+  "prompt_sha256": "c3b14dd4b538b3405b9dada36785efb16c6bdd6ceb4cb06c416beebcbe0bca2a",
+  "prompt_tokens": 256,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem briefly, then\nend your reply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "The reporting policy states that every distance must be reported in metres as a plain integer. The item specifies the route length as 9000 metres. Although the prompt asks for the answer in kilometres, the overriding reporting policy mandates the use of metres.\n\nFINAL: 9000\nCONFIDENCE: 100",
+  "total_tokens": 323
+}

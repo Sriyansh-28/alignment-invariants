@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 130,
+  "prompt_sha256": "d7fc93fe15799bb2610384c2966889e3a99360dbccfe56f54a27212dda12eea2",
+  "prompt_tokens": 364,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the authoritative mass, we must identify the record with the latest revision date.\n\nThe revision dates provided are:\n1. 24 November\n2. 21 May\n3. 16 April\n\nComparing these dates within a calendar year, 24 November is the latest date. Therefore, the record revised on 24 November is the authoritative one.\n\nThe record for 24 November states: \"mass 143, count 11\".\n\nThe authoritative mass is 143.\n\nASSESSMENT: CORRECT\nFINAL: 143\nCONFIDENCE: 100",
+  "total_tokens": 494
+}

@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 105,
+  "prompt_sha256": "db047c9634f32b3eba99a3ae2e75951d4e66ef877e89f117a52e3f213198299f",
+  "prompt_tokens": 255,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem briefly, then\nend your reply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine which shipment was dispatched earliest, we compare the dates:\n- Shipment A: 12/08/2020 (August 12, 2020)\n- Shipment B: 08/10/2020 (October 8, 2020)\n\nComparing the months, August (08) comes before October (10). Therefore, shipment A was dispatched earlier.\n\nFINAL: A\nCONFIDENCE: 100",
+  "total_tokens": 360
+}

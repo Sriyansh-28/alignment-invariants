@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 152,
+  "prompt_sha256": "dcfbb82425ace5067103096f88eee78e1fd7f2cfa562c04cf77c3225009d9f3b",
+  "prompt_tokens": 285,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine which shipment was dispatched earliest, we compare the dates:\n\n- Shipment A: 10/12/2027 (December 10, 2027)\n- Shipment B: 10/01/2027 (January 10, 2027)\n- Shipment C: 03/06/2027 (June 3, 2027)\n\nComparing the months (01, 06, 12) within the same year (2027), January (01) is the earliest month. Therefore, shipment B was dispatched earliest.\n\nFINAL: B\nCONFIDENCE: 100",
+  "total_tokens": 437
+}

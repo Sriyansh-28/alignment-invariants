@@ -63,6 +63,15 @@
       "successful": 0,
       "failed": 0,
       "note": "Preregistered main design requires 240 additional calls after pilot validation; free-tier only; experiment will resume across quota windows."
+    },
+    {
+      "utc": "2026-08-16T20:29:34+00:00",
+      "kind": "main",
+      "label": "main",
+      "calls": 259,
+      "successful": 240,
+      "failed": 0,
+      "note": "model=gemini-3.1-flash-lite, phase=main, logical_calls=240"
     }
   ]
 }

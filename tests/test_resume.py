@@ -155,3 +155,34 @@ class TestLedgerAccuracy:
         led.record(kind="pilot", label="p", calls=245)
         guard = BudgetGuard(max_calls=min(250, led.remaining()))
         assert guard.max_calls == 5
+
+
+class TestGuardCountsRequestsNotCalls:
+    """Regression for the main-run overspend.
+
+    240 logical calls issued 259 requests because 19 were retried through
+    transient errors. The guard was counting calls, so it allowed all 259
+    against a cap of 240 and the study cap was breached by 19 requests. Quota
+    is charged per request, so requests are what must be bounded."""
+
+    def test_retried_calls_consume_the_cap(self, tmp_path):
+        provider = ScriptedProvider({}, attempts_per_call=3)
+        model, guard, _ = build(tmp_path, provider, remaining=6)
+        for i in range(2):
+            model.call(prompt=f"p{i}", system="s", temperature=0.0,
+                       max_output_tokens=8, seed=1, thinking_budget=0,
+                       condition="stage1")
+        assert guard.api_requests == 6 and guard.live_calls == 2
+        with pytest.raises(Exception) as exc:
+            model.call(prompt="p2", system="s", temperature=0.0,
+                       max_output_tokens=8, seed=1, thinking_budget=0,
+                       condition="stage1")
+        assert "hard cap" in str(exc.value)
+        assert provider.calls == 2, "a call was issued past the request cap"
+
+    def test_remaining_is_reported_in_requests(self, tmp_path):
+        provider = ScriptedProvider({}, attempts_per_call=2)
+        model, guard, _ = build(tmp_path, provider, remaining=10)
+        model.call(prompt="p", system="s", temperature=0.0, max_output_tokens=8,
+                   seed=1, thinking_budget=0, condition="stage1")
+        assert guard.remaining() == 8, "remaining ignored the retried request"

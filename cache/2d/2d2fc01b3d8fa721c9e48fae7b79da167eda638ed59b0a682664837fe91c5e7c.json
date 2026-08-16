@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 181,
+  "prompt_sha256": "578738a0ab0519dc1d5ea0f7c3c2d0a3be51472bd70667a912d4d418835ac207",
+  "prompt_tokens": 354,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine which shipment was dispatched earliest, we compare the dates provided:\n\n- Shipment A: 08/11/2022 (November 8, 2022)\n- Shipment B: 08/06/2022 (June 8, 2022)\n- Shipment C: 10/03/2022 (March 10, 2022)\n\nComparing the months:\n- March (03) is the earliest month.\n- June (06) is the second month.\n- November (11) is the latest month.\n\nTherefore, Shipment C (10/03/2022) was dispatched earliest. The previous answer was correct.\n\nASSESSMENT: CORRECT\nFINAL: C\nCONFIDENCE: 100",
+  "total_tokens": 535
+}

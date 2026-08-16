@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 94,
+  "prompt_sha256": "d6e10b8c80df031d513d1e601dd6ecfc922df0295059eff2b8dfda909c397d7e",
+  "prompt_tokens": 279,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem briefly, then\nend your reply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many units higher the northern station read than the coastal station, we look at the provided data:\n- Northern station: 73\n- Coastal station: 83\n\nThe question asks for the difference by which the northern station read *higher* than the coastal station. Since 73 is less than 83, the northern station did not read higher than the coastal station.\n\nFINAL: NONE\nCONFIDENCE: 100",
+  "total_tokens": 373
+}
