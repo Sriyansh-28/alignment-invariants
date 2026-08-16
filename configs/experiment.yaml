@@ -19,10 +19,17 @@ experiment_name: "alignment-invariants-v1"
 seed: 20260816
 
 model:
-  # Read from GEMINI_MODEL if set, otherwise this value. Chosen because it is
-  # the free-tier-eligible workhorse model at the time of writing; see
-  # README "Free API Requirement" for how to change it.
-  name: "gemini-2.5-flash"
+  # Read from GEMINI_MODEL if set, otherwise this value. See README
+  # "Free API Requirement" for how to change it.
+  #
+  # Was "gemini-2.5-flash" during design. Google restricted both that model and
+  # gemini-2.5-flash-lite to pre-existing users, so generateContent now returns
+  # 404 NOT_FOUND for new keys and the study could not run as originally
+  # specified. Switched to the nearest available flash-lite successor.
+  # gemini-3.5-flash-lite and gemini-flash-lite-latest were rejected as
+  # substitutes: both return 400 INVALID_ARGUMENT for thinking_budget=0, which
+  # is load-bearing for condition B (see the thinking_budget note below).
+  name: "gemini-3.1-flash-lite"
   temperature: 0.0
   max_output_tokens: 1024
   # Deterministic decoding is requested so the prompt manipulation is not

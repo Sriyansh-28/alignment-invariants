@@ -125,3 +125,33 @@ This was removed before piloting, because it is not a condition. Difficulty is a
 It was replaced with **R. Reprompt control**, a content-neutral second turn, which fills a genuine gap: without it, every intervention effect is confounded with turn count.
 
 This is recorded here rather than silently applied. It is discussed in "What Did Not Work" in the report.
+
+### Addendum 2 — forced model substitution (2026-08-16, before any successful call)
+
+The study was designed against `gemini-2.5-flash`. Google has since restricted
+that model, and `gemini-2.5-flash-lite`, to pre-existing users: `generateContent`
+returns `404 NOT_FOUND` ("no longer available to new users") for a new API key.
+Three pilot calls were attempted on the original model and all failed with this
+error; they produced no usable data and their cache entries were deleted.
+
+The model was changed to **`gemini-3.1-flash-lite`**.
+
+Two nearer-generation flash-lite models were tested and rejected:
+`gemini-3.5-flash-lite` and `gemini-flash-lite-latest` both return
+`400 INVALID_ARGUMENT` for `thinking_budget = 0`. Disabling thinking is
+load-bearing for this design — with hidden thinking enabled the model may
+self-correct internally, which confounds condition B (self-critique) by making
+the intervention redundant with reasoning the experiment cannot observe.
+Accepting either model would have meant running the study with that confound.
+`gemini-flash-latest` accepts `thinking_budget = 0` but is a moving alias whose
+underlying model can be repointed between the pilot and the main run, so it was
+rejected for reproducibility.
+
+`gemini-3.1-flash-lite` is a pinned version, accepts `thinking_budget = 0`, and
+stays in the flash-lite tier the design assumed.
+
+**Scope limit this introduces:** the model is a generation newer than the one the
+hypotheses were written against, and is not the model named anywhere in the
+original brief. Absolute accuracy figures are therefore not comparable to any
+result obtained on `gemini-2.5-flash`. The within-study comparisons between
+conditions remain valid, because every condition is run against the same model.
