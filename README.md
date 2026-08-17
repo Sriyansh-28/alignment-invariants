@@ -4,7 +4,9 @@
 
 An experimental study of whether alignment-relevant behavioral properties of a language model remain stable as task difficulty and behavioral pressure increase.
 
-> **Status: experiments pending.** The full pipeline is implemented, tested (110 unit tests), and validated end-to-end against a deterministic mock provider. No live model run has been executed yet, so this README contains **no results**. Numbers will be added only after a real run, generated from committed experiment output. Nothing here is estimated, projected, or filled in by hand.
+> **Status: complete.** The pre-registered main experiment ran on 2026-08-16 against `gemini-3.1-flash-lite`: 36 tasks, 6 conditions, 216 trials, 240 live calls, no failures. Every number below is generated from committed experiment output (`results/tables/summary.json`); nothing is estimated or filled in by hand. 140 unit tests pass. The study is closed — no further model calls will be made.
+>
+> **No pre-registered comparison reached statistical significance.** The primary comparison, neutral reprompt control vs self-critique, gave a Holm-adjusted **p = 0.500**. This study **does not** show that self-critique improves performance or alignment. Full detail in [`research/report.md`](research/report.md).
 
 ---
 
@@ -59,9 +61,11 @@ Conditions D and E build on documented sycophancy ([arXiv:2310.13548](https://ar
 
 One model, one configuration. This is a **within-model behavioral study**, not a multi-model benchmark.
 
-- Model: set via `GEMINI_MODEL` (default `gemini-2.5-flash`)
-- `temperature = 0`, fixed seed, `max_output_tokens = 1024`
+- Model: `gemini-3.1-flash-lite` (override via `GEMINI_MODEL`)
+- `temperature = 0`, fixed seed, `max_output_tokens = 3072`
 - **Thinking tokens disabled** (`thinking_budget = 0`)
+
+The design was written against `gemini-2.5-flash`. That model, and `gemini-2.5-flash-lite`, now return `404 NOT_FOUND` for new API keys, so the study could not run as specified. `gemini-3.1-flash-lite` is the nearest available flash-lite model that still accepts `thinking_budget = 0`; the two nearer-generation flash-lite models reject it, which would have silently reintroduced the confound the setting exists to remove. Recorded as [Addendum 2](research/hypotheses.md#addenda).
 
 That last choice is deliberate and consequential: with hidden reasoning enabled the model may already self-correct internally, which would confound the self-critique condition. Disabling it means all reasoning the intervention can act on is visible in the response text. It also limits the scope of the findings — they describe the non-thinking configuration only.
 
@@ -86,21 +90,35 @@ A sixth condition "Increased Task Difficulty" was specified in the original desi
 
 Procedurally generated, not drawn from a public benchmark. Full documentation in [`data/README.md`](data/README.md).
 
-- **27 evaluation tasks**, fully crossed: 3 families × 3 difficulty levels × 3 items
-- **8 pilot tasks** on a disjoint seed stream
-- Families: `arith_chain` (multi-step arithmetic with distractors), `logic_order` (linear-order reconstruction from shuffled constraints), `set_filter` (multi-predicate table filtering)
+- **36 evaluation tasks**, fully crossed: 4 families × 3 difficulty levels × 3 items
+- **4 pilot tasks** on a disjoint split (Pilot 3); Pilots 1 and 2 used their own disjoint splits
+- Families: `false_premise`, `evidence_update`, `convention`, `instruction_conflict`
 
 Why synthetic: **contamination control** (instances did not exist before the run, so they cannot have been memorized), **exact ground truth** (computed by the generating code — no LLM judge anywhere), and **operational difficulty** (a generator parameter, not a human label).
 
-Difficulty is defined structurally — operation count, chain depth, predicate count, distractor count — with the surface template held constant within a family across levels:
+Each family targets a situation where a competent reader can go wrong in a specific, predictable, checkable way:
+
+| Family | Behaviour measured | The natural error |
+|---|---|---|
+| `false_premise` | checking a question's presupposition against the evidence | answering a question the log contradicts |
+| `evidence_update` | applying a stated precedence rule over a positional heuristic | trusting the first- or last-listed record |
+| `convention` | letting an explicit local convention override a strong prior | reading dates as month/day |
+| `instruction_conflict` | keeping a stated priority ordering under a competing inline request | obeying the nearer instruction |
+
+Difficulty is structural, with the surface template held constant within a family across levels:
 
 | Family | L1 | L2 | L3 |
 |---|---|---|---|
-| `arith_chain` | 2 ops, ≤20, 0 distractors | 4 ops, ≤60, 1 distractor | 6 ops, ≤200, 2 distractors |
-| `logic_order` | 4 entities | 5 entities, 1 redundant | 6 entities, 2 redundant |
-| `set_filter` | 5 records, 1 predicate | 8 records, 2 predicates | 11 records, 3 predicates, 1 negated |
+| `false_premise` | 3 records | 5 records | 7 records, entities referred to by attribute |
+| `evidence_update` | 2 revisions | 3 revisions, 2 fields | 4 revisions, newest withdrawn |
+| `convention` | 2 dates | 3 dates | 4 dates, second-earliest asked |
+| `instruction_conflict` | 1 inline request | 2 inline requests | 2 requests + tagged policy exception |
 
-Every task carries a `distractor_answer` derived from a *named reasoning slip* (stopping one step early, off-by-one position, miscount by one), so conditions D and E apply task-specific pressure of comparable plausibility at every difficulty level.
+Two families are **discriminative by construction**: a `convention` item is rejected unless its answer differs under the two date readings, and `false_premise` items are balanced so answering `NONE` always scores no better than answering a number always.
+
+**These are Revision 3 families.** The original three (`arith_chain`, `logic_order`, `set_filter`) were retired after two pilots scored 48/48 at stage 1 — see [What did not work](#what-did-not-work).
+
+Every task carries a `distractor_answer` derived from a *named reasoning slip* — the answer reached by taking the tempting route — so conditions D and E apply task-specific pressure of comparable plausibility at every difficulty level.
 
 ### Metrics
 
@@ -119,13 +137,40 @@ Successful Correction Rate is **never reported without False Correction Rate**. 
 
 ## Results
 
-**Experiments pending.**
+36 tasks, 216 paired trials, `gemini-3.1-flash-lite`. From `results/tables/summary.json`.
 
-No live model run has been executed. This section will be replaced with measured results, generated from `results/tables/summary.json`, once the experiment runs. No number will be written here by hand.
+**Baseline accuracy 31/36 = 0.861** (Wilson 0.713–0.939). **Five first-pass errors** — the denominator for every correction measure here.
+
+| Condition | Final accuracy | Corrected | False-corrected |
+|---|---|---|---|
+| A. Baseline | 31/36 = 0.861 | — | — |
+| **R. Reprompt control** | **34/36 = 0.944** | **3/5** | 0/31 |
+| **B. Self-critique** | **36/36 = 1.000** | **5/5** | 0/31 |
+| C. Verification | 34/36 = 0.944 | 3/5 | 0/31 |
+| D. Conflicting evidence | 35/36 = 0.972 | 4/5 | 0/31 |
+| E. Preserve pressure | 35/36 = 0.972 | 4/5 | 0/31 |
+
+**No intervention broke a correct answer** — false correction 0/31 everywhere, including both pressure conditions. Format compliance 36/36 in every condition.
+
+**Baseline by difficulty:** d1 12/12 · d2 11/12 · d3 8/12 — monotone, but 12 items per level is a weak check.
+
+**Baseline by family:** `false_premise` 9/9 · `convention` 9/9 · `evidence_update` 8/9 · **`instruction_conflict` 5/9**. Four of the five errors come from one family; the study is effectively one discriminating family plus three that did not discriminate on this model.
+
+**Confidence: unavailable.** Stated confidence was 100 on 215 of 216 trials (one verification trial gave 95). No condition reached the pre-registered minimum of three distinct values, so ECE was not computed. Reported as unmeasurable rather than approximated.
+
+**Consistency probe: 12/12** identical on repeat at temperature 0 — API determinism, but it does rule out sampling noise as an explanation for the differences above.
+
+**Prompt ablation: uninformative.** All 12 ablation items were already correct at stage 1, so there was nothing to correct and no discordant pairs.
+
+### What this does and does not show
+
+The neutral reprompt control — which adds a turn and **no evaluative content at all** — recovered 3 of the same 5 errors that self-critique recovered 5 of, and the two are not statistically distinguishable. Whatever fixed those three cannot have been critique, because none was requested.
+
+Had this study compared baseline against self-critique alone, it would have reported 0.861 → 1.000 and credited the critique. The turn-matched control is what stops that inference. **A substantial part of the apparent self-critique benefit is explained by simply being asked again**, consistent with [arXiv:2310.12397](https://arxiv.org/abs/2310.12397).
+
+**This study does not establish that self-critique improves performance or alignment.**
 
 ## Statistical analysis
-
-**Experiments pending.** The procedures are implemented and tested; only the data is missing.
 
 Because the same tasks are evaluated under every condition, the analysis is **paired throughout**:
 
@@ -136,11 +181,43 @@ Because the same tasks are evaluated under every condition, the analysis is **pa
 - **Cochran–Armitage** for the difficulty ladder, because difficulty is *ordered* and a plain chi-square would discard that.
 - **Holm–Bonferroni** across the pre-registered family of 5 comparisons (controls family-wise error; uniformly more powerful than Bonferroni).
 
-**Power is reported alongside every null result.** With 27 paired items the minimum detectable risk difference at 80% power is roughly 0.2. **Any non-significant result in this study means "underpowered to detect," not "no effect,"** and will be stated that way.
+**Power is reported alongside every null result.** With 36 paired items the minimum detectable risk difference at 80% power is **≈0.256**. **Every non-significant result below means "underpowered to detect," not "no effect."**
+
+### Results
+
+Cochran's Q omnibus: **Q = 12.71, df = 5, p = 0.026**.
+
+| Comparison | acc A | acc B | discordant | p raw | **p Holm** | Reject |
+|---|---|---|---|---|---|---|
+| **R. Reprompt vs B. Self-critique** (primary) | 0.944 | 1.000 | 0 / 2 | 0.500 | **0.500** | **No** |
+| A. Baseline vs B. Self-critique | 0.861 | 1.000 | 0 / 5 | 0.063 | 0.313 | No |
+| A. Baseline vs R. Reprompt | 0.861 | 0.944 | 0 / 3 | 0.250 | 0.500 | No |
+| A. Baseline vs D. Conflicting evidence | 0.861 | 0.972 | 0 / 4 | 0.125 | 0.500 | No |
+| A. Baseline vs E. Preserve pressure | 0.861 | 0.972 | 0 / 4 | 0.125 | 0.500 | No |
+
+**No pre-registered comparison is significant after correction.** Every observed difference is smaller than the 0.256 detectable threshold.
+
+The omnibus is nominally significant while no corrected pairwise test is — an ordinary consequence of pooling evidence across six conditions when each pairwise test sees only 2–5 discordant pairs. **It licenses no specific claim about which conditions differ**, and no uncorrected or post-hoc pairwise analysis was run to manufacture one.
+
+The primary comparison rests on **two discordant pairs**. Exact McNemar cannot return p < 0.05 below five, so this test could not have been significant under this design — a foreseeable limitation given the pilot's five baseline errors.
 
 ## Failure cases
 
-**Experiments pending.** `analysis/failure_analysis.py` classifies **every** trial into one of nine mutually exclusive categories by a deterministic rule — `confident_persistence_of_error`, `detected_but_uncorrected`, `false_correction`, and so on. Counts sum to the total, and qualitative examples are selected by a fixed rule (first N by sorted task id), **not** by which ones look interesting.
+All 216 trials classified by deterministic rule; counts sum to the total.
+
+| Category | Count |
+|---|---|
+| `stable_correct` | 171 |
+| `successful_correction` | 19 |
+| `false_detection_survived` | 15 |
+| `silent_persistence_of_error` | 7 |
+| `confident_persistence_of_error` | 4 |
+| `unparseable_response` | 0 |
+| `false_correction` | 0 |
+
+**`false_detection_survived` (15)** is the notable one: the model called a *correct* answer incorrect and then kept it anyway. Stated assessment and behaviour came apart, and behaviour was the reliable channel. A study reading only final accuracy would never see it.
+
+`analysis/failure_analysis.py` classifies **every** trial into one of nine mutually exclusive categories by a deterministic rule — `confident_persistence_of_error`, `detected_but_uncorrected`, `false_correction`, and so on. Counts sum to the total, and qualitative examples are selected by a fixed rule (first N by sorted task id), **not** by which ones look interesting.
 
 ## What did not work
 
@@ -151,25 +228,34 @@ Recorded so far, before any model run:
 - **Cache-poisoning bug caught in development.** The mock provider originally wrote cache entries under keys identical to real calls, so a mock run followed by a real run would have silently served synthetic data as model output. The cache is now namespaced by provider, with a regression test.
 - **Parser bug caught by tests.** The confidence regex did not tolerate markdown *after* the colon (`**CONFIDENCE:** 75`), which would have silently dropped confidence data.
 
-This section will be extended with negative and null results from the actual run.
+### From the run itself
+
+- **Two pilots produced no usable data.** Pilots 1 and 2 both scored 48/48 at stage 1 — 96 live calls, about a quarter of the budget, yielding no measurable behaviour. Pilot 2 raised reasoning depth substantially (output tokens 9.6k → 25k for the same 48 calls, with visible backtracking in transcripts) and *still* produced zero first-pass errors. That is what motivated changing the task type rather than scaling further. `logic_order` turned out structurally incapable of being made hard: a set of pure precedence constraints has a unique linear extension only when it contains every adjacent pair, which is a chain walk.
+- **The gate blocked the main run twice**, and did its job. The cost was real; the alternative was spending the full budget on a saturated instrument.
+- **A ground-truth bug found by rewriting the tests.** Making the tests re-derive answers by parsing the *rendered prompt* rather than trusting generator bookkeeping immediately exposed negative-position constraints comparing a 0-indexed position against the 1-indexed one shown to the model. Every ordering instance was unsolvable as written while looking well-formed.
+- **A dormant cache bug that would have replayed failures as data.** Failed calls were cached and served back as ordinary hits, so a rerun after a bad session would have silently presented failures as model output. Fixed before the main run, with regression tests.
+- **The confidence instruction could not be made to work.** Three attempts across three pilots, including an instruction defining the scale operationally, all returned 100 on essentially every trial. Calibration is reported as unavailable.
+- **The prompt ablation carried no information.** All 12 ablation items were already correct at stage 1.
+- **A budget accounting overrun.** 389 API requests against an approved 370. See [`research/report.md` §11](research/report.md#11-experimental-accounting-incident).
 
 ---
 
 ## Limitations
 
-1. **n = 27.** Nine items per difficulty level, three per family-difficulty cell. Small effects are undetectable; per-cell numbers are descriptive only.
-2. **One model, one configuration.** No claim generalizes across models, and thinking tokens are disabled.
-3. **Synthetic, narrow tasks.** Short problems with single verifiable answers. Nothing here speaks to open-ended generation or tasks where correctness is contested.
-4. **One prompt phrasing per condition.** Given documented format sensitivity ([arXiv:2310.11324](https://arxiv.org/abs/2310.11324)), effects may be phrasing-specific. Only the self-critique wording is ablated.
-5. **Stated confidence is a verbal report, not a probability.** ECE is computed only if ≥3 distinct values are emitted; otherwise the study reports that calibration is not measurable rather than inventing a metric.
-6. **Response consistency at temperature 0** measures API determinism, not sampling variability.
+1. **n = 36, and only 5 baseline errors.** Every correction measure rests on those five. The minimum detectable difference is ≈0.26; every observed difference is smaller. Per-cell numbers are descriptive only.
+2. **The error signal comes from one family.** Four of five baseline errors were `instruction_conflict`; the other three families were at or near ceiling on this model.
+3. **One model, one configuration** — and not the model the design was written against, since the original was withdrawn from new keys mid-study. Thinking tokens disabled.
+4. **Synthetic, narrow tasks.** Short problems with single verifiable answers. Nothing here speaks to open-ended generation or tasks where correctness is contested.
+5. **One prompt phrasing per condition.** Given documented format sensitivity ([arXiv:2310.11324](https://arxiv.org/abs/2310.11324)), effects may be phrasing-specific. Only the self-critique wording is ablated.
+6. **Calibration is unavailable, not weak.** Stated confidence took one value on 215 of 216 trials; ECE was gated off, as pre-registered.
+7. **Response consistency at temperature 0** measures API determinism, not sampling variability.
 
 ## Threats to validity
 
 - **Capability/alignment confound.** A drop at difficulty 3 may simply mean the task got harder. This study cannot separate the two, and does not claim to.
-- **Ceiling and floor effects.** If accuracy is at ceiling on L1 or floor on L3, correction denominators become small or degenerate. The pilot checks for this explicitly before the main budget is spent.
-- **Chance baselines differ by family** (≈0 for arithmetic, 0.25 for others at L1), so aggregate accuracy mixes families with different guess floors. Per-family results are reported separately.
-- **Condition R controls for turn count but not for evaluative framing** — it does not request a self-assessment. A stricter control is future work.
+- **Ceiling effects, which actually bit.** Two full pilots sat at 48/48 before the instrument was replaced. Even in the main run, three of four families and difficulty level 1 were at ceiling, so the realized error denominator was five.
+- **Chance baselines differ by family** (0.5 for `instruction_conflict`'s two salient candidates, lower elsewhere), so aggregate accuracy mixes families with different guess floors. Per-family results are reported separately.
+- **Condition R controls for turn count but not for evaluative framing** — it does not request a self-assessment. This became the study's central interpretive limit: R and B differed on only two items, so the design could not separate the critique from the extra turn. A stricter control is future work.
 - **Difficulty is defined structurally, not calibrated to the model.** The levels may not be equally spaced in model-difficulty.
 
 ---
@@ -222,7 +308,7 @@ data/        README.md (dataset is generated, not stored)
 research/    background.md, hypotheses.md, metrics.md, report.md
 experiments/ raw run output (JSON)
 results/     tables/ and figures/ — generated, never hand-edited
-tests/       110 unit tests
+tests/       140 unit tests
 web/         Next.js dashboard and live demonstration
 ```
 
@@ -268,14 +354,21 @@ This project runs entirely on the **Google Gemini API free tier**. No paid model
 
 Cost control is enforced in code, not by convention:
 
-- **Hard cap of 250 live calls** (`budget.max_api_calls`). `BudgetGuard` refuses the call that would cross it.
-- **The full call schedule is computed before any request is issued**; a plan that would exceed the cap aborts having spent nothing. Check it with `--dry-run`.
-- **Every response is cached** and keyed on the complete request. Re-running costs zero calls.
+- **A persistent cumulative ledger** (`experiments/budget_ledger.json`) debits every live request across all runs and sessions — diagnostic, pilot and main alike, successes and failures. `BudgetGuard` alone was not enough: it counts within one process, and the first two pilots each reported "202 remaining" while together spending 96 calls.
+- **The full call schedule is computed before any request is issued**, cache-aware, so a resume reserves only what it will actually cost. A plan that would breach the cap aborts having spent nothing. Check it with `--dry-run`.
+- **Every response is cached** and keyed on the complete request. Re-running the main phase costs **zero** calls.
+- **Only successful responses are cached.** Failures are never persisted and are always retried — an earlier revision cached them and replayed them as model output.
 - **Stage 1 is shared across all six conditions**, halving cost versus re-asking per condition.
-- Failed calls count against the budget, because they consume quota.
-- Rate limits and transient errors are retried with exponential backoff and jitter; an invalid key fails fast without burning retries.
+- Failed calls count against the budget, because they consume quota. Retries count individually, because the quota is charged per request.
+- Rate limits are retried with exponential backoff; if the provider still refuses, the run **stops cleanly and resumes from cache** after the quota window resets rather than burning the next window.
 
-Planned budget: pilot 48 + main 186 = **234 of 250**, leaving 16 in reserve.
+**Realized spend: 389 requests** (the main run's 240 logical calls issued 259 HTTP requests, 19 of them retries). The cap was raised once, 250 → 370, as an audited ledger entry, to fund the pre-registered main design without shrinking it. The run then overran that cap by 19 requests — fully documented in [`research/report.md` §11](research/report.md#11-experimental-accounting-incident). The overrun is left visible in the ledger rather than reconciled away.
+
+Inspect the ledger at any time:
+
+```bash
+python -m src.caching.ledger
+```
 
 ### The pilot gate
 

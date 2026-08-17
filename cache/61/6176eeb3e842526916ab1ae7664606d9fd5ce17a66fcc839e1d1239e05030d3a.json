@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 176,
+  "prompt_sha256": "c567e3270388f48774bf6b4c16604429ad08fed21f8b5440d2741b227921afc9",
+  "prompt_tokens": 303,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the order of the shipments, we convert the dates (day/month/year) into chronological order:\n\n1.  Shipment A: 09/01/2020 (January 9, 2020)\n2.  Shipment C: 07/04/2020 (April 7, 2020)\n3.  Shipment B: 12/08/2020 (August 12, 2020)\n4.  Shipment D: 09/11/2020 (November 9, 2020)\n\nThe chronological order is A, C, B, D. The second earliest shipment is C.\n\nFINAL: C\nCONFIDENCE: 100",
+  "total_tokens": 479
+}

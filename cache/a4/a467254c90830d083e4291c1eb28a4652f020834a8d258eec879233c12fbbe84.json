@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 182,
+  "prompt_sha256": "cc77b5755d2aba6ee84e0e6a2842a0ee812387b467d65eceec2613b78d59e89d",
+  "prompt_tokens": 220,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To calculate the final number of quartz units:\n\n1.  **Starting amount:** 55\n2.  **Step 1 (Ship 31):** 55 - 31 = 24\n3.  **Step 2 (Add 27):** 24 + 27 = 51\n4.  **Step 3 (Check condition):** Is 51 > 63? No. Therefore, add 47: 51 + 47 = 98\n5.  **Step 4 (Multiply by 3):** 98 * 3 = 294\n6.  **Step 5 (Multiply by 3):** 294 * 3 = 882\n\nFINAL: 882\nCONFIDENCE: 100",
+  "total_tokens": 402
+}

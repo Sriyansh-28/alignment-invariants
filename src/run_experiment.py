@@ -28,8 +28,11 @@ from typing import Any
 import yaml
 
 from src.caching.cache import ResponseCache
+from src.caching.ledger import (DEFAULT_LEDGER, BudgetLedger,
+                                LedgerExceededError)
 from src.evaluation.extract import Parsed, is_correct, parse_response
 from src.gemini.client import (APIKeyError, BudgetExceededError, BudgetGuard,
+                               QuotaExhaustedError,
                                CachedModel, GeminiProvider, load_api_key)
 from src.metrics.metrics import TrialRecord
 from src.tasks.generators import Task, generate_dataset
@@ -89,6 +92,108 @@ def plan_calls(cfg: dict[str, Any], n_tasks: int, phase: str) -> dict[str, int]:
             plan["prompt_ablation"] = min(probes["prompt_ablation"]["n_tasks"], n_tasks)
     plan["total"] = sum(v for k, v in plan.items() if k != "total")
     return plan
+
+
+def plan_live_calls(cfg: dict[str, Any], prompts: dict[str, Any], phase: str,
+                    model: CachedModel, tasks: list[Task]) -> dict[str, int]:
+    """How many live calls this run would actually cost, given the cache.
+
+    ``plan_calls`` gives the worst case, which is the right number to check
+    before a first run and the wrong number to check before a resume: after a
+    session that completed most of the experiment, the worst case still says
+    "240 calls" even though 200 of them are already on disk and free. Reserving
+    against that figure would refuse to resume a run that costs almost nothing.
+
+    Stage-2 prompts embed the stage-1 answer, so a stage-2 key only exists once
+    stage 1 is cached. Where stage 1 is still missing, its dependent stage-2
+    calls are counted as needed -- which they are, and which keeps this an
+    upper bound that converges to the exact figure as the run progresses.
+    """
+    mcfg = cfg["model"]
+    common = dict(temperature=mcfg["temperature"],
+                  max_output_tokens=mcfg["max_output_tokens"],
+                  seed=mcfg.get("seed"), thinking_budget=mcfg.get("thinking_budget"))
+    systems = prompts["system"]
+    cond_specs = prompts["conditions"]
+
+    needed = {"stage1": 0, "stage2": 0}
+    # Three states, not two. "missing" means stage 1 has yet to be called, so
+    # its dependent stage-2 calls are unknown and must be reserved for.
+    # "unparseable" means stage 1 was called and returned nothing gradeable:
+    # the runner records those trials as unusable without issuing a stage-2
+    # call, so reserving budget for them would over-report what a resume costs.
+    stage1_answer: dict[str, str | None] = {}
+    stage1_state: dict[str, str] = {}
+
+    for task in tasks:
+        prompt = prompts["stage1"]["template"].format(task_prompt=task.prompt)
+        req = model.build_request(prompt=prompt, system=systems["solver"], **common)
+        entry = model.cache.get_raw(model.cache.make_key(req))
+        if entry is None:
+            needed["stage1"] += 1
+            stage1_state[task.task_id] = "missing"
+            stage1_answer[task.task_id] = None
+        else:
+            parsed = parse_response(entry.get("text", ""))
+            stage1_answer[task.task_id] = parsed.answer
+            stage1_state[task.task_id] = "ok" if parsed.parsed else "unparseable"
+
+    for cond in cfg["conditions"]:
+        spec = cond_specs[cond]
+        if spec["kind"] == "single_turn":
+            continue  # condition A reuses stage 1 and costs nothing
+        sys_key = spec.get("system", "reviser")
+        for task in tasks:
+            state = stage1_state[task.task_id]
+            if state == "unparseable":
+                continue  # the runner skips these without calling
+            if state == "missing":
+                needed["stage2"] += 1  # depends on a stage-1 result not yet known
+                continue
+            prompt = spec["template"].format(
+                task_prompt=task.prompt, initial_answer=stage1_answer[task.task_id],
+                distractor_answer=task.distractor_answer)
+            if not model.is_cached(prompt=prompt, system=systems[sys_key], **common):
+                needed["stage2"] += 1
+
+    if phase == "main":
+        probes = cfg.get("probes", {})
+        if probes.get("consistency", {}).get("enabled"):
+            # The repeat re-issues the stage-1 prompt under a different
+            # repetition index, so its key is known without running anything.
+            n = min(probes["consistency"]["n_tasks"], len(tasks))
+            count = 0
+            for task in tasks[:n]:
+                prompt = prompts["stage1"]["template"].format(task_prompt=task.prompt)
+                for rep in range(1, probes["consistency"]["repeats"] + 1):
+                    if not model.is_cached(prompt=prompt, system=systems["solver"],
+                                           rep=rep, **common):
+                        count += 1
+            needed["consistency_probe"] = count
+
+        ab = probes.get("prompt_ablation", {})
+        if ab.get("enabled"):
+            spec = prompts["ablations"][ab["name"]]
+            sys_key = systems[spec.get("system", "reviser")]
+            n = min(ab["n_tasks"], len(tasks))
+            count = 0
+            for task in tasks[:n]:
+                state = stage1_state[task.task_id]
+                if state == "unparseable":
+                    continue  # skipped by the runner
+                if state == "missing":
+                    count += 1
+                    continue
+                prompt = spec["template"].format(
+                    task_prompt=task.prompt,
+                    initial_answer=stage1_answer[task.task_id],
+                    distractor_answer=task.distractor_answer)
+                if not model.is_cached(prompt=prompt, system=sys_key, **common):
+                    count += 1
+            needed["prompt_ablation"] = count
+
+    needed["total"] = sum(needed.values())
+    return needed
 
 
 def _format_ok(p: Parsed, needs_assessment: bool) -> bool:
@@ -323,24 +428,25 @@ def main(argv: list[str] | None = None) -> int:
     if args.max_calls is not None:
         cap = min(cap, args.max_calls)
 
+    # The per-run cap above bounds this process only. The study budget is
+    # cumulative across every run ever made, which is what the ledger tracks.
+    ledger = BudgetLedger(cfg["paths"].get("ledger", DEFAULT_LEDGER),
+                          hard_cap=cfg["budget"]["max_api_calls"])
+
     print(f"\n=== phase={args.phase}  tasks={len(tasks)}  conditions={len(cfg['conditions'])} ===")
     print("Planned live calls (worst case, before cache):")
     for k, v in plan.items():
         print(f"  {k:22s} {v:4d}")
-    print(f"  {'hard cap':22s} {cap:4d}")
-
-    if plan["total"] > cap:
-        print(f"\nABORT: plan of {plan['total']} calls exceeds the cap of {cap}. "
-              f"Nothing was spent.", file=sys.stderr)
-        return 2
-    if args.dry_run:
-        print("\n--dry-run: no API calls issued.")
-        return 0
+    print(f"  {'per-run cap':22s} {cap:4d}")
+    print("Cumulative study budget (persists across runs):")
+    print(f"  {'already spent':22s} {ledger.total_calls():4d}   {ledger.total_by_kind()}")
+    print(f"  {'remaining':22s} {ledger.remaining():4d} of {ledger.hard_cap}")
 
     model_name = os.environ.get("GEMINI_MODEL") or cfg["model"]["name"]
     cache = ResponseCache(cfg["paths"]["cache_dir"])
-    guard = BudgetGuard(max_calls=cap)
 
+    # Build the model first so the resume planner can derive cache keys exactly
+    # the way the call path does.
     provider: Any
     provider_kind: str
     if args.mock:
@@ -364,9 +470,38 @@ def main(argv: list[str] | None = None) -> int:
             return 3
         provider_kind = "gemini"
 
+    # A real run may never push cumulative spend past the study cap, so its
+    # guard is bounded by whatever the ledger has left. Mock and offline runs
+    # issue no requests to the provider and are not charged, so bounding them
+    # by the study budget would block pipeline testing for no benefit.
+    spends_quota = provider_kind == "gemini"
+    guard = BudgetGuard(max_calls=min(cap, ledger.remaining()) if spends_quota else cap)
     model = CachedModel(provider, cache, guard, model_name,
                         offline=(provider_kind == "offline-cache"),
                         namespace="mock" if provider_kind == "mock" else "gemini")
+
+    resume = plan_live_calls(cfg, prompts, args.phase, model, tasks)
+    already = plan["total"] - resume["total"]
+    breakdown = {k: v for k, v in resume.items() if k != "total"}
+    print("Actually needed now (cache-aware):")
+    print(f"  {'already cached':22s} {already:4d}")
+    print(f"  {'live calls needed':22s} {resume['total']:4d}   {breakdown}")
+
+    if resume["total"] > cap:
+        print(f"\nABORT: {resume['total']} live calls needed exceeds the per-run cap "
+              f"of {cap}. Nothing was spent.", file=sys.stderr)
+        return 2
+    if spends_quota:
+        try:
+            ledger.check_can_spend(resume["total"])
+        except LedgerExceededError as exc:
+            print(f"\nABORT: {exc}\n"
+                  f"Nothing was spent. Completed work is cached and this run is "
+                  f"resumable once the study cap allows it.", file=sys.stderr)
+            return 2
+    if args.dry_run:
+        print("\n--dry-run: no API calls issued.")
+        return 0
 
     started = datetime.now(timezone.utc).isoformat()
     try:
@@ -376,9 +511,32 @@ def main(argv: list[str] | None = None) -> int:
     except BudgetExceededError as exc:
         print(f"\nSTOPPED ON BUDGET: {exc}", file=sys.stderr)
         payload = {"trials": [], "raw_log": [], "aborted": str(exc)}
+    except QuotaExhaustedError as exc:
+        # Not an error in the experiment: the free-tier window is spent. Every
+        # successful call is already cached, so re-running after the quota
+        # resets continues from here instead of starting over.
+        print(f"\nPAUSED ON QUOTA: {exc}\n"
+              f"Re-run the same command after the quota window resets; cached "
+              f"calls will not be repeated.", file=sys.stderr)
+        payload = {"trials": [], "raw_log": [], "paused": str(exc)}
     except APIKeyError as exc:
         print(f"\nERROR: {exc}", file=sys.stderr)
         return 3
+
+    # Debit the ledger before writing anything, so the results file records the
+    # true post-run cumulative total and a crash after this point still leaves
+    # the spend accounted for.
+    _b = guard.summary()
+    split = cfg["dataset"].get(f"{args.phase}_split", args.phase)
+    if provider_kind == "gemini" and _b["api_requests"]:
+        # Debit requests, not calls. A call retried through a rate limit issued
+        # several requests and the free-tier quota is charged per request, so
+        # debiting calls would understate real usage exactly when the run is
+        # struggling against the quota.
+        ledger.record(kind=args.phase, label=split, calls=_b["api_requests"],
+                      successful=_b["successful_calls"], failed=_b["failed_calls"],
+                      note=f"model={model_name}, phase={args.phase}, "
+                           f"logical_calls={_b['live_calls']}")
 
     payload["meta"] = {
         "experiment_name": cfg["experiment_name"],
@@ -393,6 +551,10 @@ def main(argv: list[str] | None = None) -> int:
         "planned_calls": plan,
         "budget": guard.summary(),
         "cache": cache.stats(),
+        # Cumulative spend across every run, not just this process. A results
+        # file that reported only the per-run count implied far more budget
+        # remained than actually did.
+        "cumulative_budget": ledger.totals(),
     }
     payload["tasks"] = [t.to_dict() for t in tasks]
 
@@ -404,13 +566,20 @@ def main(argv: list[str] | None = None) -> int:
         json.dump(payload, fh, indent=2)
 
     b = guard.summary()
+    # Debit the ledger with what this run actually spent, so the next run starts
+    # from the true cumulative total even if this one crashed partway.
     print(f"\n--- budget ---")
-    print(f"  live calls      : {b['live_calls']} / {b['max_calls']}")
+    print(f"  live calls      : {b['live_calls']} / {b['max_calls']} (this run)")
     print(f"  successful      : {b['successful_calls']}")
     print(f"  failed          : {b['failed_calls']}")
     print(f"  cache hits      : {b['cache_hits']}")
     print(f"  tokens (p/o)    : {b['prompt_tokens']} / {b['output_tokens']}")
     print(f"  per condition   : {b['calls_per_condition']}")
+    print(f"\n--- cumulative study budget ---")
+    t = ledger.totals()
+    print(f"  spent all runs  : {t['total_calls']} / {t['hard_cap']}")
+    print(f"  remaining       : {t['remaining']}")
+    print(f"  by kind         : {t['by_kind']}")
     print(f"\nwrote {out_path}")
     return 0
 

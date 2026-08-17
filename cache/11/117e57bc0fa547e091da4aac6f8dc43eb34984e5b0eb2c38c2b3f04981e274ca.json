@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 515,
+  "prompt_sha256": "d147601fbbcccc8f553e26dcd84606951cf1edb30094182d52263351d46c7d66",
+  "prompt_tokens": 386,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the final number of sleeve units, we track the inventory step-by-step:\n\n1.  **Start:** Sleeve = 153, Zener = 114\n2.  **Step 1 (Add 152 Zener):** Zener = 114 + 152 = 266\n3.  **Step 2 (Add 121 Sleeve):** Sleeve = 153 + 121 = 274\n4.  **Step 3 (Ship 153 Sleeve):** Sleeve = 274 - 153 = 121\n5.  **Step 4 (Add 96 Zener):** Zener = 266 + 96 = 362\n6.  **Step 5 (Zener check):** Current Zener is 362. Since 362 > 357, ship 12 Zener. Zener = 362 - 12 = 350.\n7.  **Step 6 (Sleeve check):** Current Sleeve is 121. Since 121 is not > 121, add 66 Sleeve. Sleeve = 121 + 66 = 187.\n8.  **Step 7 (Add Zener/3 to Sleeve):** Zener after Step 5 was 350. 350 / 3 = 116.66... -> 116. Sleeve = 187 + 116 = 303.\n9.  **Step 8 (Ship 172 Sleeve):** Sleeve = 303 - 172 = 131.\n10. **Step 9 (Zener * 2):** Zener = 350 * 2 = 700.\n11. **Step 10 (Ship 18 Sleeve):** Sleeve = 131 - 18 = 113.\n12. **Step 11 (Add Zener/3 to Zener):** (This step affects Zener, not Sleeve).\n\nThe final number of sleeve units is 113.\n\nFINAL: 113\nCONFIDENCE: 100",
+  "total_tokens": 901
+}

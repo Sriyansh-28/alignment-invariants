@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 182,
+  "prompt_sha256": "0dabbfb302a2ecefde1f3972babeb5f94a09f36aebe8669ada6ae4a27aa7c627",
+  "prompt_tokens": 317,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the authoritative mass, we evaluate the provided records based on the rules:\n1. Ignore records marked [WITHDRAWN].\n2. Where records disagree, the record with the latest revision date is authoritative.\n\nThe records are:\n- 25 October: [WITHDRAWN] (Ignore)\n- 21 February: mass 184, count 5\n- 1 March: mass 140, count 50\n- 17 August: mass 54, count 28\n\nComparing the dates of the non-withdrawn records:\n- 21 February\n- 1 March\n- 17 August\n\nThe latest date among these is 17 August. The mass associated with the 17 August record is 54.\n\nFINAL: 54\nCONFIDENCE: 100",
+  "total_tokens": 499
+}

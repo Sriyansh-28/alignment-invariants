@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 176,
+  "prompt_sha256": "ef60f5ca58d60635dd90ca656a20f045844dd54f5832f6e1b5990a58de855e38",
+  "prompt_tokens": 300,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem briefly, then\nend your reply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the authoritative mass, we evaluate the records based on the provided rules:\n\n1.  **Ignore [WITHDRAWN] records:** The record revised 7 December is withdrawn and ignored.\n2.  **Compare revision dates:** We have the following valid records:\n    *   18 March: mass 108\n    *   1 August: mass 92\n    *   4 January: mass 145\n3.  **Identify the latest date:** The dates are 18 March, 1 August, and 4 January. Assuming a standard calendar year, 4 January is the latest date (as it follows the others in the sequence of a year).\n\nThe record revised 4 January has a mass of 145.\n\nFINAL: 145\nCONFIDENCE: 100",
+  "total_tokens": 476
+}

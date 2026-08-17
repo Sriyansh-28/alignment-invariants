@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 118,
+  "prompt_sha256": "a4837c0cbe9855e1c074b30d4075fd325a2ca26389534f3cffd8b11a7551cdab",
+  "prompt_tokens": 179,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To calculate the number of flask units in store:\n\n1. Starting amount: 36\n2. Add delivery: 36 + 33 = 69\n3. Add delivery: 69 + 1 = 70\n4. Subtract order: 70 - 44 = 26\n5. Subtract order: 26 - 17 = 9\n\nThe quartz units are stored in a different building and are not included in the flask unit count.\n\nFINAL: 9\nCONFIDENCE: 100",
+  "total_tokens": 297
+}

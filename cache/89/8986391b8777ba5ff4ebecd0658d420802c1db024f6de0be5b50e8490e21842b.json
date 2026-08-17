@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 82,
+  "prompt_sha256": "a0ba6494e4a63d695c2b28153c263ed0d1fe0502ac3eacde114e149242f3a61e",
+  "prompt_tokens": 289,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "The reporting policy states that every distance must be reported in metres as a plain integer, unless the item is tagged AIR, in which case it is reported in kilometres. The item [RAIL] is not tagged AIR, so the distance must be reported in metres. 9000 metres is 9000.\n\nFINAL: 9000\nCONFIDENCE: 100",
+  "total_tokens": 371
+}

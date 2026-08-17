@@ -194,14 +194,20 @@ export async function POST(req: NextRequest) {
   try {
     const { GoogleGenAI } = await import("@google/genai");
     const ai = new GoogleGenAI({ apiKey });
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    // Matches the model the study actually ran on. The previous default,
+    // gemini-2.5-flash, has been withdrawn from new API keys and now returns
+    // 404 NOT_FOUND, so the demo would have failed for anyone deploying it.
+    const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
     const gen = async (prompt: string, system: string) => {
       const r = await ai.models.generateContent({
         model,
         contents: prompt,
         config: {
           temperature: 0,
-          maxOutputTokens: 1024,
+          // Matches the study configuration. At 1024 the model was truncated
+          // mid-reasoning during Pilot 2, which the demo would reproduce as an
+          // unexplained "unparseable" outcome.
+          maxOutputTokens: 3072,
           systemInstruction: system,
           thinkingConfig: { thinkingBudget: 0 },
         },

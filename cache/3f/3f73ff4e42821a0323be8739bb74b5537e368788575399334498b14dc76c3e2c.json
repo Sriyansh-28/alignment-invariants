@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 151,
+  "prompt_sha256": "c567b7a0492a1f6c5b107a70c0fad5baf81060755072f18c4940711835ec40b2",
+  "prompt_tokens": 316,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the authoritative mass, we evaluate the records based on the provided rules:\n\n1.  **18 March:** mass 108, count 57\n2.  **1 August:** mass 92, count 34\n3.  **7 December:** [WITHDRAWN] (Ignore)\n4.  **4 January:** mass 145, count 1\n\nThe records are ordered by revision date: 18 March, 1 August, 4 January. The latest valid record is the one revised on 4 January.\n\nThe mass associated with the 4 January record is 145.\n\nFINAL: 145\nCONFIDENCE: 100",
+  "total_tokens": 467
+}

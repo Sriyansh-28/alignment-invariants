@@ -1,0 +1,77 @@
+{
+  "hard_cap": 370,
+  "entries": [
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "diagnostic",
+      "label": "model-availability-probe",
+      "calls": 2,
+      "successful": 0,
+      "failed": 2,
+      "note": "gemini-2.5-flash and gemini-2.5-flash-lite; both 404 NOT_FOUND for a new key"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "pilot",
+      "label": "pilot1-aborted-on-retired-model",
+      "calls": 3,
+      "successful": 0,
+      "failed": 3,
+      "note": "stage1 attempts on gemini-2.5-flash before the 404 was diagnosed; cache entries deleted"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "diagnostic",
+      "label": "candidate-model-sweep",
+      "calls": 5,
+      "successful": 5,
+      "failed": 0,
+      "note": "thinking_budget=0 compatibility across 5 candidate models"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "pilot",
+      "label": "pilot1",
+      "calls": 48,
+      "successful": 48,
+      "failed": 0,
+      "note": "Revision 1 generators, gemini-3.1-flash-lite; 48/48 at stage 1, gate failed 3/5"
+    },
+    {
+      "utc": "2026-08-16T19:50:50+00:00",
+      "kind": "pilot",
+      "label": "pilot2",
+      "calls": 48,
+      "successful": 48,
+      "failed": 0,
+      "note": "Revision 2 generators; 48/48 at stage 1, gate failed 2/5"
+    },
+    {
+      "utc": "2026-08-16T19:56:30+00:00",
+      "kind": "pilot",
+      "label": "pilot3",
+      "calls": 24,
+      "successful": 24,
+      "failed": 0,
+      "note": "model=gemini-3.1-flash-lite, phase=pilot"
+    },
+    {
+      "utc": "2026-08-16T20:09:35+00:00",
+      "kind": "cap_change",
+      "label": "250 -> 370",
+      "calls": 0,
+      "successful": 0,
+      "failed": 0,
+      "note": "Preregistered main design requires 240 additional calls after pilot validation; free-tier only; experiment will resume across quota windows."
+    },
+    {
+      "utc": "2026-08-16T20:29:34+00:00",
+      "kind": "main",
+      "label": "main",
+      "calls": 259,
+      "successful": 240,
+      "failed": 0,
+      "note": "model=gemini-3.1-flash-lite, phase=main, logical_calls=240"
+    }
+  ]
+}

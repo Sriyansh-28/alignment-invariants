@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 86,
+  "prompt_sha256": "8ac3f32cc88d9289760ec57113925f2558e18d39fd1e9a04a11cd4c9d5755a9c",
+  "prompt_tokens": 292,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are restating a final answer. End your reply with exactly two lines in\nthis format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine how many units the northern station read higher than the coastal station, we compare the provided values:\n- Northern station: 73\n- Coastal station: 83\n\nThe northern station (73) is lower than the coastal station (83), not higher. Therefore, the premise that the northern station read higher is contradicted by the data.\n\nFINAL: NONE\nCONFIDENCE: 100",
+  "total_tokens": 378
+}

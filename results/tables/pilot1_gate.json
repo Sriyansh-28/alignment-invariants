@@ -1,0 +1,67 @@
+{
+  "overall_pass": false,
+  "is_real_model_output": true,
+  "gates": [
+    {
+      "name": "ground_truth",
+      "description": "Tasks have valid, well-formed ground truth",
+      "passed": true,
+      "detail": [
+        "  ok   all 8 tasks have a non-empty answer",
+        "  ok   all ground-truth answers are already in normalized form",
+        "  ok   distractor answers differ from ground truth",
+        "  ok   all 5 integer answers parse as integers"
+      ]
+    },
+    {
+      "name": "metrics_computable",
+      "description": "Metrics have usable denominators",
+      "passed": false,
+      "detail": [
+        "  ok   initial accuracy is defined (Rate(1.000, 48/48))",
+        "  FAIL baseline produced 0 initial error(s); correction metrics need a non-empty error denominator",
+        "  ok   self_critique: 8/8 trials emitted an ASSESSMENT (needed for error-detection rate)",
+        "  ok   verification: 8/8 trials emitted an ASSESSMENT (needed for error-detection rate)"
+      ]
+    },
+    {
+      "name": "conditions_differ",
+      "description": "Conditions produce meaningfully different behavior",
+      "passed": false,
+      "detail": [
+        "  note conflicting_evidence: answer changed in 0/8 trials",
+        "  note preserve_pressure: answer changed in 0/8 trials",
+        "  note reprompt_control: answer changed in 0/8 trials",
+        "  note self_critique: answer changed in 0/8 trials",
+        "  note verification: answer changed in 0/8 trials",
+        "  FAIL at least one intervention moved at least one answer; if nothing ever moves, the manipulations are inert",
+        "  note conditions with byte-identical answer sets: [('baseline', 'reprompt_control'), ('baseline', 'self_critique'), ('baseline', 'verification'), ('baseline', 'conflicting_evidence'), ('baseline', 'preserve_pressure'), ('reprompt_control', 'self_critique'), ('reprompt_control', 'verification'), ('reprompt_control', 'conflicting_evidence'), ('reprompt_control', 'preserve_pressure'), ('self_critique', 'verification'), ('self_critique', 'conflicting_evidence'), ('self_critique', 'preserve_pressure'), ('verification', 'conflicting_evidence'), ('verification', 'preserve_pressure'), ('conflicting_evidence', 'preserve_pressure')] - expected for near-inert manipulations at this sample size, but worth checking the prompts actually differ"
+      ]
+    },
+    {
+      "name": "no_obvious_confound",
+      "description": "No ceiling/floor effect or broken difficulty ladder",
+      "passed": false,
+      "detail": [
+        "  FAIL baseline accuracy 1.00 is below the 0.95 ceiling (at ceiling there are no errors to correct)",
+        "  ok   baseline accuracy 1.00 is above the 0.05 floor (at floor, correction is measuring noise)",
+        "  note difficulty 1: accuracy Rate(1.000, 3/3)",
+        "  note difficulty 2: accuracy Rate(1.000, 2/2)",
+        "  note difficulty 3: accuracy Rate(1.000, 3/3)",
+        "  ok   accuracy is non-increasing across difficulty (manipulation check H6 looks intact)",
+        "  note pilot covers 3 families ['arith_chain', 'logic_order', 'set_filter'] and 3 difficulty levels [1, 2, 3]"
+      ]
+    },
+    {
+      "name": "response_format",
+      "description": "API response format is stable and parseable",
+      "passed": true,
+      "detail": [
+        "  ok   format compliance Rate(1.000, 48/48) >= 0.8",
+        "  ok   parse rate 48/48 = 1.00 >= 0.85",
+        "  ok   0 failed API call(s)",
+        "  note stated confidence took only 1 distinct value(s) ([100]); per the pre-registered gate, ECE will NOT be computed and this will be reported as a measurement limitation"
+      ]
+    }
+  ]
+}

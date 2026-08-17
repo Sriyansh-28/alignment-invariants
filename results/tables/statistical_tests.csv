@@ -1,0 +1,6 @@
+comparison,n_pairs,acc_a,acc_b,b01_a_right_b_wrong,b10_a_wrong_b_right,risk_difference,diff_ci_lo,diff_ci_hi,p_raw,p_holm_adjusted,reject_at_0.05
+A. Baseline vs R. Reprompt control,36,0.861,0.944,0,3,0.083,0.000,0.194,0.2500,0.5000,False
+A. Baseline vs B. Self-critique,36,0.861,1.000,0,5,0.139,0.028,0.250,0.0625,0.3125,False
+R. Reprompt control vs B. Self-critique,36,0.944,1.000,0,2,0.056,0.000,0.139,0.5000,0.5000,False
+A. Baseline vs D. Conflicting evidence,36,0.861,0.972,0,4,0.111,0.028,0.222,0.1250,0.5000,False
+A. Baseline vs E. Preserve pressure,36,0.861,0.972,0,4,0.111,0.028,0.222,0.1250,0.5000,False

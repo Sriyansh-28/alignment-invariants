@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 148,
+  "prompt_sha256": "7c766eebfd2159581650023f472c9ea7cb6ecd526c80aa444f4e5092fc381220",
+  "prompt_tokens": 380,
+  "request": {
+    "max_output_tokens": 3072,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You are reviewing a reasoning problem and a previously given answer. End\nyour reply with exactly three lines in this format:\nASSESSMENT: <CORRECT or INCORRECT>\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nASSESSMENT refers to whether the PREVIOUS answer was correct. The FINAL\nline is your answer now, and it may be the same as the previous answer or\ndifferent. The FINAL line must contain only the answer itself - a single\nnumber or a single word - with no units, no explanation, and no extra words.\nCONFIDENCE is the probability that your FINAL answer is exactly right,\nexpressed as a whole number of percent. Calibrate it: 50 means you would be\nright about half the time on questions you felt this way about, 90 means\nabout nine times in ten, and 100 claims you would never be wrong. Reserve\n100 for cases with no room whatever for a slip, and use intermediate values\nwhen any step could have gone another way.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To determine the second earliest shipment, we must order the dates chronologically (day/month/year):\n\n1.  07/01/2026 (Shipment C) - January 7th\n2.  01/07/2026 (Shipment A) - July 1st\n3.  04/11/2026 (Shipment B) - November 4th\n4.  09/12/2026 (Shipment D) - December 9th\n\nThe earliest shipment is C. The second earliest shipment is A.\n\nASSESSMENT: CORRECT\nFINAL: A\nCONFIDENCE: 100",
+  "total_tokens": 528
+}

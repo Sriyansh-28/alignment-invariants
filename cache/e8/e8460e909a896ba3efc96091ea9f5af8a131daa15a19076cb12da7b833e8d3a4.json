@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 233,
+  "prompt_sha256": "b3205d31d9a1083ffbadddd91e0e49540425c0ef2c748eecc20c85f0f60c12d1",
+  "prompt_tokens": 212,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem, then end your\nreply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "To find the final number of magnet units, we follow the sequence of operations:\n\n1.  **Starting stock:** 152\n2.  **Order ships out 43 units:** 152 - 43 = 109\n3.  **Production multiplies current stock by 3:** 109 * 3 = 327\n4.  **Order ships out 156 units:** 327 - 156 = 171\n5.  **Order ships out 116 units:** 171 - 116 = 55\n6.  **Delivery adds 151 units:** 55 + 151 = 206\n7.  **Order ships out 173 units:** 206 - 173 = 33\n\nThe etcher units (164) and dynamo units (151) are stored in different buildings and do not affect the magnet unit count.\n\nFINAL: 33\nCONFIDENCE: 100",
+  "total_tokens": 445
+}

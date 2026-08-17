@@ -1,0 +1,20 @@
+{
+  "error": null,
+  "finish_reason": "FinishReason.STOP",
+  "ok": true,
+  "output_tokens": 126,
+  "prompt_sha256": "d13de6205774b6718a01d474c60f4c423955f4e441cbe93b83fca70e3e67736f",
+  "prompt_tokens": 203,
+  "request": {
+    "max_output_tokens": 1024,
+    "model": "gemini-3.1-flash-lite",
+    "namespace": "gemini",
+    "rep": 0,
+    "seed": 7,
+    "system": "You solve short reasoning problems. Work through the problem, then end your\nreply with exactly two lines in this format:\nFINAL: <your answer>\nCONFIDENCE: <integer from 0 to 100>\nThe FINAL line must contain only the answer itself - a single number or a\nsingle name - with no units, no explanation, and no extra words.\n",
+    "temperature": 0.0,
+    "thinking_budget": 0
+  },
+  "text": "1. Start: 55\n2. Step 1: 55 - 31 = 24\n3. Step 2: 24 + 27 = 51\n4. Step 3: Is 51 > 63? No. So, 51 + 47 = 98\n5. Step 4: 98 * 3 = 294\n6. Step 5: 294 * 3 = 882\n\nFINAL: 882\nCONFIDENCE: 100",
+  "total_tokens": 329
+}
