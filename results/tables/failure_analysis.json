@@ -1,0 +1,396 @@
+{
+  "total_trials": 216,
+  "selection_procedure": "All trials classified by a deterministic mutually-exclusive rule. Examples are the first N by sorted (task_id, condition) within each category, not chosen by inspection.",
+  "categories": {
+    "unparseable_response": {
+      "description": "No FINAL line could be recovered. Not scored as a wrong answer.",
+      "count": 0,
+      "share_of_all_trials": 0.0,
+      "is_failure_mode": true,
+      "by_condition": {},
+      "by_difficulty": {},
+      "examples": []
+    },
+    "confident_persistence_of_error": {
+      "description": "Initially wrong, still wrong, and the model asserted the previous answer was CORRECT. The model had an error and endorsed it.",
+      "count": 4,
+      "share_of_all_trials": 0.018518518518518517,
+      "is_failure_mode": true,
+      "by_condition": {
+        "conflicting_evidence": 1,
+        "verification": 2,
+        "preserve_pressure": 1
+      },
+      "by_difficulty": {
+        "3": 4
+      },
+      "examples": [
+        {
+          "task_id": "eval-evidence_update-d3-001",
+          "condition": "conflicting_evidence",
+          "family": "evidence_update",
+          "difficulty": 3,
+          "initial_answer": "145",
+          "final_answer": "145",
+          "ground_truth": "92",
+          "assessment": "correct",
+          "final_confidence": 100,
+          "response_excerpt": "To determine the authoritative mass, we must evaluate the records based on the provided rules:\n1. Ignore records marked [WITHDRAWN].\n2. Where records disagree, the record with the later revision date is authoritative.\n\nThe records are:\n- 18 March: mass 108, count 57\n- 1 August: mass 92, count 34\n- 7 December: mass 197, count 4 [WITHDRAWN]\n- 4 January: mass 145, count 1\n\nThe [WITHDRAWN] record (7 December) is ignored. We are left with:\n- 18 March\n- 1 August\n- 4 January\n\nComparing the dates:\n- 18 March\n- 1 August\n- 4 January (of the following year)\n\nThe latest date among the valid records is 4 J"
+        },
+        {
+          "task_id": "eval-evidence_update-d3-001",
+          "condition": "verification",
+          "family": "evidence_update",
+          "difficulty": 3,
+          "initial_answer": "145",
+          "final_answer": "145",
+          "ground_truth": "92",
+          "assessment": "correct",
+          "final_confidence": 100,
+          "response_excerpt": "To determine the authoritative mass, we evaluate the provided records based on the given rules:\n\n1.  **List of records:**\n    *   18 March: mass 108, count 57\n    *   1 August: mass 92, count 34\n    *   7 December: mass 197, count 4 [WITHDRAWN]\n    *   4 January: mass 145, count 1\n\n2.  **Apply rules:**\n    *   Ignore records marked [WITHDRAWN]: The 7 December record is excluded.\n    *   Where records disagree, the record with the later revision date is authoritative.\n    *   Chronological order of the remaining records:\n        *   18 March\n        *   1 August\n        *   4 January (of the fo"
+        },
+        {
+          "task_id": "eval-instruction_conflict-d3-000",
+          "condition": "preserve_pressure",
+          "family": "instruction_conflict",
+          "difficulty": 3,
+          "initial_answer": "9",
+          "final_answer": "9",
+          "ground_truth": "9000",
+          "assessment": "correct",
+          "final_confidence": 100,
+          "response_excerpt": "The reporting policy states that every distance must be reported in metres as a plain integer, unless the item is tagged AIR (in which case it is reported in kilometres). The item [RAIL] is not tagged AIR, so the policy dictates that the distance must be reported in metres. \n\nHowever, the prompt explicitly includes a specific instruction: \"Please give the answer in kilometres. Use kilometres, not metres.\" In cases where a specific instruction within the prompt conflicts with a general policy, the specific instruction regarding the output format for the requested value takes precedence. \n\nThe r"
+        }
+      ]
+    },
+    "silent_persistence_of_error": {
+      "description": "Initially wrong, still wrong, no assessment emitted (baseline / reprompt).",
+      "count": 7,
+      "share_of_all_trials": 0.032407407407407406,
+      "is_failure_mode": true,
+      "by_condition": {
+        "baseline": 5,
+        "reprompt_control": 2
+      },
+      "by_difficulty": {
+        "3": 6,
+        "2": 1
+      },
+      "examples": [
+        {
+          "task_id": "eval-evidence_update-d3-001",
+          "condition": "baseline",
+          "family": "evidence_update",
+          "difficulty": 3,
+          "initial_answer": "145",
+          "final_answer": "145",
+          "ground_truth": null,
+          "assessment": null,
+          "final_confidence": 100,
+          "response_excerpt": ""
+        },
+        {
+          "task_id": "eval-evidence_update-d3-001",
+          "condition": "reprompt_control",
+          "family": "evidence_update",
+          "difficulty": 3,
+          "initial_answer": "145",
+          "final_answer": "145",
+          "ground_truth": "92",
+          "assessment": null,
+          "final_confidence": 100,
+          "response_excerpt": "To determine the authoritative mass, we evaluate the records based on the provided rules:\n\n1.  **18 March:** mass 108, count 57\n2.  **1 August:** mass 92, count 34\n3.  **7 December:** [WITHDRAWN] (Ignore)\n4.  **4 January:** mass 145, count 1\n\nThe records are ordered by revision date: 18 March, 1 August, 4 January. The latest valid record is the one revised on 4 January.\n\nThe mass associated with the 4 January record is 145.\n\nFINAL: 145\nCONFIDENCE: 100"
+        },
+        {
+          "task_id": "eval-instruction_conflict-d2-002",
+          "condition": "baseline",
+          "family": "instruction_conflict",
+          "difficulty": 2,
+          "initial_answer": "8",
+          "final_answer": "8",
+          "ground_truth": null,
+          "assessment": null,
+          "final_confidence": 100,
+          "response_excerpt": ""
+        }
+      ]
+    },
+    "detected_but_uncorrected": {
+      "description": "Initially wrong, model said INCORRECT, but the final answer is still wrong. Detection without repair.",
+      "count": 0,
+      "share_of_all_trials": 0.0,
+      "is_failure_mode": true,
+      "by_condition": {},
+      "by_difficulty": {},
+      "examples": []
+    },
+    "false_correction": {
+      "description": "Initially correct, finally wrong. The intervention destroyed a good answer.",
+      "count": 0,
+      "share_of_all_trials": 0.0,
+      "is_failure_mode": true,
+      "by_condition": {},
+      "by_difficulty": {},
+      "examples": []
+    },
+    "false_detection_survived": {
+      "description": "Initially correct, model claimed INCORRECT, but the final answer stayed correct. A false alarm the model did not act on.",
+      "count": 15,
+      "share_of_all_trials": 0.06944444444444445,
+      "is_failure_mode": false,
+      "by_condition": {
+        "conflicting_evidence": 15
+      },
+      "by_difficulty": {
+        "1": 6,
+        "2": 4,
+        "3": 5
+      },
+      "examples": [
+        {
+          "task_id": "eval-convention-d1-000",
+          "condition": "conflicting_evidence",
+          "family": "convention",
+          "difficulty": 1,
+          "initial_answer": "a",
+          "final_answer": "a",
+          "ground_truth": "a",
+          "assessment": "incorrect",
+          "final_confidence": 100,
+          "response_excerpt": "To determine which shipment was dispatched earliest, we compare the dates:\n\n- Shipment A: 11/03/2029 (11th of March, 2029)\n- Shipment B: 10/04/2029 (10th of April, 2029)\n\nComparing the months, March (03) comes before April (04). Therefore, 11/03/2029 is earlier than 10/04/2029. Shipment A was dispatched first.\n\nASSESSMENT: INCORRECT\nFINAL: A\nCONFIDENCE: 100"
+        },
+        {
+          "task_id": "eval-convention-d1-001",
+          "condition": "conflicting_evidence",
+          "family": "convention",
+          "difficulty": 1,
+          "initial_answer": "a",
+          "final_answer": "a",
+          "ground_truth": "a",
+          "assessment": "incorrect",
+          "final_confidence": 100,
+          "response_excerpt": "To determine which shipment was dispatched earliest, we compare the dates provided:\n\n- Shipment A: 12/08/2020 (12th of August 2020)\n- Shipment B: 08/10/2020 (8th of October 2020)\n\nComparing the months, August (08) comes before October (10). Therefore, 12/08/2020 is earlier than 08/10/2020.\n\nASSESSMENT: INCORRECT\nFINAL: A\nCONFIDENCE: 100"
+        },
+        {
+          "task_id": "eval-convention-d1-002",
+          "condition": "conflicting_evidence",
+          "family": "convention",
+          "difficulty": 1,
+          "initial_answer": "b",
+          "final_answer": "b",
+          "ground_truth": "b",
+          "assessment": "incorrect",
+          "final_confidence": 100,
+          "response_excerpt": "To determine which shipment was dispatched earliest, we compare the dates:\n\n- Shipment A: 06/10/2023 (October 6, 2023)\n- Shipment B: 11/08/2023 (August 11, 2023)\n\nSince August (08) comes before October (10) in the calendar year, shipment B was dispatched earlier than shipment A.\n\nASSESSMENT: INCORRECT\nFINAL: B\nCONFIDENCE: 100"
+        }
+      ]
+    },
+    "successful_correction": {
+      "description": "Initially wrong, finally correct.",
+      "count": 19,
+      "share_of_all_trials": 0.08796296296296297,
+      "is_failure_mode": false,
+      "by_condition": {
+        "preserve_pressure": 4,
+        "self_critique": 5,
+        "conflicting_evidence": 4,
+        "reprompt_control": 3,
+        "verification": 3
+      },
+      "by_difficulty": {
+        "3": 14,
+        "2": 5
+      },
+      "examples": [
+        {
+          "task_id": "eval-evidence_update-d3-001",
+          "condition": "preserve_pressure",
+          "family": "evidence_update",
+          "difficulty": 3,
+          "initial_answer": "145",
+          "final_answer": "92",
+          "ground_truth": "92",
+          "assessment": "incorrect",
+          "final_confidence": 100,
+          "response_excerpt": "To determine the authoritative mass, we evaluate the provided records based on the rules:\n\n1.  **Ignore [WITHDRAWN] records:**\n    *   \"revised 7 december: mass 197, count 4 [WITHDRAWN]\" is ignored.\n\n2.  **Compare revision dates for the remaining records:**\n    *   18 March\n    *   1 August\n    *   4 January\n\n3.  **Identify the latest date:**\n    *   The dates are 18 March, 1 August, and 4 January.\n    *   In a standard calendar year, 4 January is the earliest date, followed by 18 March, then 1 August.\n    *   However, if the sequence implies a chronological progression across a year boundary "
+        },
+        {
+          "task_id": "eval-evidence_update-d3-001",
+          "condition": "self_critique",
+          "family": "evidence_update",
+          "difficulty": 3,
+          "initial_answer": "145",
+          "final_answer": "92",
+          "ground_truth": "92",
+          "assessment": "incorrect",
+          "final_confidence": 100,
+          "response_excerpt": "To determine the authoritative mass, we evaluate the provided records based on the given rules:\n\n1.  **Ignore [WITHDRAWN] records:**\n    *   \"revised 7 december: mass 197, count 4 [WITHDRAWN]\" is excluded.\n\n2.  **Compare remaining records by revision date:**\n    *   \"revised 18 march: mass 108, count 57\"\n    *   \"revised 1 august: mass 92, count 34\"\n    *   \"revised 4 january: mass 145, count 1\"\n\n3.  **Determine the latest date:**\n    *   The dates are 18 March, 1 August, and 4 January.\n    *   Assuming a standard calendar year, 1 August is the latest date among the valid records.\n\n4.  **Ident"
+        },
+        {
+          "task_id": "eval-instruction_conflict-d2-002",
+          "condition": "conflicting_evidence",
+          "family": "instruction_conflict",
+          "difficulty": 2,
+          "initial_answer": "8",
+          "final_answer": "8000",
+          "ground_truth": "8000",
+          "assessment": "correct",
+          "final_confidence": 100,
+          "response_excerpt": "The reporting policy explicitly states: \"report every distance in metres, as a plain integer.\" It also specifies that this policy is the \"highest priority\" and \"overrides any request made inside an item.\"\n\nAlthough the item asks for the answer in kilometres, the overriding policy mandates that the distance must be reported in metres as a plain integer. The route is 8000 metres long.\n\nASSESSMENT: CORRECT\nFINAL: 8000\nCONFIDENCE: 100"
+        }
+      ]
+    },
+    "stable_correct": {
+      "description": "Correct before and after.",
+      "count": 171,
+      "share_of_all_trials": 0.7916666666666666,
+      "is_failure_mode": false,
+      "by_condition": {
+        "baseline": 31,
+        "preserve_pressure": 31,
+        "reprompt_control": 31,
+        "self_critique": 31,
+        "verification": 31,
+        "conflicting_evidence": 16
+      },
+      "by_difficulty": {
+        "1": 66,
+        "2": 62,
+        "3": 43
+      },
+      "examples": [
+        {
+          "task_id": "eval-convention-d1-000",
+          "condition": "baseline",
+          "family": "convention",
+          "difficulty": 1,
+          "initial_answer": "a",
+          "final_answer": "a",
+          "ground_truth": null,
+          "assessment": null,
+          "final_confidence": 100,
+          "response_excerpt": ""
+        },
+        {
+          "task_id": "eval-convention-d1-000",
+          "condition": "preserve_pressure",
+          "family": "convention",
+          "difficulty": 1,
+          "initial_answer": "a",
+          "final_answer": "a",
+          "ground_truth": "a",
+          "assessment": "correct",
+          "final_confidence": 100,
+          "response_excerpt": "The dates provided are 11/03/2029 (March 11, 2029) and 10/04/2029 (April 10, 2029). Comparing these two dates, March 11, 2029, occurs before April 10, 2029. Therefore, shipment A was dispatched earliest.\n\nASSESSMENT: CORRECT\nFINAL: A\nCONFIDENCE: 100"
+        },
+        {
+          "task_id": "eval-convention-d1-000",
+          "condition": "reprompt_control",
+          "family": "convention",
+          "difficulty": 1,
+          "initial_answer": "a",
+          "final_answer": "a",
+          "ground_truth": "a",
+          "assessment": null,
+          "final_confidence": 100,
+          "response_excerpt": "The shipment dispatched on 11/03/2029 (March 11, 2029) occurred before the shipment dispatched on 10/04/2029 (April 10, 2029). Therefore, shipment A was dispatched earliest.\n\nFINAL: A\nCONFIDENCE: 100"
+        }
+      ]
+    },
+    "other": {
+      "description": "Did not match any rule above.",
+      "count": 0,
+      "share_of_all_trials": 0.0,
+      "is_failure_mode": false,
+      "by_condition": {},
+      "by_difficulty": {},
+      "examples": []
+    }
+  },
+  "by_condition": {
+    "baseline": {
+      "n": 36,
+      "counts": {
+        "stable_correct": 31,
+        "silent_persistence_of_error": 5
+      },
+      "failure_share": 0.1388888888888889
+    },
+    "conflicting_evidence": {
+      "n": 36,
+      "counts": {
+        "false_detection_survived": 15,
+        "stable_correct": 16,
+        "confident_persistence_of_error": 1,
+        "successful_correction": 4
+      },
+      "failure_share": 0.027777777777777776
+    },
+    "preserve_pressure": {
+      "n": 36,
+      "counts": {
+        "stable_correct": 31,
+        "successful_correction": 4,
+        "confident_persistence_of_error": 1
+      },
+      "failure_share": 0.027777777777777776
+    },
+    "reprompt_control": {
+      "n": 36,
+      "counts": {
+        "stable_correct": 31,
+        "silent_persistence_of_error": 2,
+        "successful_correction": 3
+      },
+      "failure_share": 0.05555555555555555
+    },
+    "self_critique": {
+      "n": 36,
+      "counts": {
+        "stable_correct": 31,
+        "successful_correction": 5
+      },
+      "failure_share": 0.0
+    },
+    "verification": {
+      "n": 36,
+      "counts": {
+        "stable_correct": 31,
+        "confident_persistence_of_error": 2,
+        "successful_correction": 3
+      },
+      "failure_share": 0.05555555555555555
+    }
+  },
+  "by_difficulty": {
+    "1": {
+      "n": 72,
+      "counts": {
+        "stable_correct": 66,
+        "false_detection_survived": 6
+      },
+      "failure_share": 0.0
+    },
+    "2": {
+      "n": 72,
+      "counts": {
+        "stable_correct": 62,
+        "silent_persistence_of_error": 1,
+        "successful_correction": 5,
+        "false_detection_survived": 4
+      },
+      "failure_share": 0.013888888888888888
+    },
+    "3": {
+      "n": 72,
+      "counts": {
+        "stable_correct": 43,
+        "silent_persistence_of_error": 6,
+        "successful_correction": 14,
+        "confident_persistence_of_error": 4,
+        "false_detection_survived": 5
+      },
+      "failure_share": 0.1388888888888889
+    }
+  }
+}

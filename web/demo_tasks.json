@@ -1,146 +1,194 @@
 [
   {
-    "task_id": "eval-arith_chain-d1-000",
-    "family": "arith_chain",
+    "task_id": "demo-false_premise-d1-000",
+    "family": "false_premise",
     "difficulty": 1,
-    "prompt": "A workshop starts the week with 10 helix units in store. A delivery adds 8 units. An order ships out 16 units.\n\nHow many helix units are in store at the end of the week?",
-    "answer": "2",
-    "distractor_answer": "18"
-  },
-  {
-    "task_id": "eval-arith_chain-d1-001",
-    "family": "arith_chain",
-    "difficulty": 1,
-    "prompt": "A workshop starts the week with 14 nozzle units in store. An order ships out 9 units. A delivery adds 20 units.\n\nHow many nozzle units are in store at the end of the week?",
-    "answer": "25",
-    "distractor_answer": "5"
-  },
-  {
-    "task_id": "eval-arith_chain-d2-000",
-    "family": "arith_chain",
-    "difficulty": 2,
-    "prompt": "A workshop starts the week with 24 piston units in store. Production multiplies the current stock by 3. A delivery adds 57 units. Production multiplies the current stock by 3. Production multiplies the current stock by 2. Separately, the workshop records 60 octant units, which are stored in a different building.\n\nHow many piston units are in store at the end of the week?",
-    "answer": "774",
-    "distractor_answer": "387"
-  },
-  {
-    "task_id": "eval-arith_chain-d2-001",
-    "family": "arith_chain",
-    "difficulty": 2,
-    "prompt": "A workshop starts the week with 32 gasket units in store. An order ships out 5 units. An order ships out 5 units. A delivery adds 58 units. Production multiplies the current stock by 3. Separately, the workshop records 36 magnet units, which are stored in a different building.\n\nHow many gasket units are in store at the end of the week?",
-    "answer": "240",
-    "distractor_answer": "80"
-  },
-  {
-    "task_id": "eval-arith_chain-d3-000",
-    "family": "arith_chain",
-    "difficulty": 3,
-    "prompt": "A workshop starts the week with 76 kiln units in store. A delivery adds 5 units. Production multiplies the current stock by 3. An order ships out 7 units. An order ships out 116 units. An order ships out 101 units. A delivery adds 118 units. Separately, the workshop records 193 dynamo units, which are stored in a different building. Separately, the workshop records 143 flask units, which are stored in a different building.\n\nHow many kiln units are in store at the end of the week?",
-    "answer": "137",
-    "distractor_answer": "19"
-  },
-  {
-    "task_id": "eval-arith_chain-d3-001",
-    "family": "arith_chain",
-    "difficulty": 3,
-    "prompt": "A workshop starts the week with 74 jigsaw units in store. An order ships out 19 units. Production multiplies the current stock by 2. An order ships out 51 units. An order ships out 13 units. An order ships out 15 units. An order ships out 10 units. Separately, the workshop records 139 octant units, which are stored in a different building. Separately, the workshop records 155 caliper units, which are stored in a different building.\n\nHow many jigsaw units are in store at the end of the week?",
-    "answer": "21",
+    "prompt": "Overnight readings:\n- coastal station: 39\n- northern station: 70\n- southern station: 12\n\nBy how many units did coastal read higher than northern?\n\nAnswer with a single integer. If the question assumes something the readings contradict, answer NONE instead.",
+    "answer": "none",
     "distractor_answer": "31"
   },
   {
-    "task_id": "eval-logic_order-d1-000",
-    "family": "logic_order",
+    "task_id": "demo-false_premise-d1-001",
+    "family": "false_premise",
     "difficulty": 1,
-    "prompt": "4 technicians ran a calibration, each finishing at a distinct time.\narlen finished before gwilym.\ngwilym finished before isolde.\nisolde finished before dvora.\n\nWho finished in position 2 (position 1 = earliest)?",
-    "answer": "gwilym",
-    "distractor_answer": "isolde"
+    "prompt": "Overnight readings:\n- coastal station: 92\n- southern station: 60\n- western station: 13\n\nBy how many units did coastal read higher than southern?\n\nAnswer with a single integer. If the question assumes something the readings contradict, answer NONE instead.",
+    "answer": "32",
+    "distractor_answer": "none"
   },
   {
-    "task_id": "eval-logic_order-d1-001",
-    "family": "logic_order",
+    "task_id": "demo-false_premise-d2-000",
+    "family": "false_premise",
+    "difficulty": 2,
+    "prompt": "Overnight readings:\n- southern station: 14\n- northern station: 47\n- eastern station: 19\n- coastal station: 22\n- western station: 31\n\nBy how many units did western read higher than eastern?\n\nAnswer with a single integer. If the question assumes something the readings contradict, answer NONE instead.",
+    "answer": "12",
+    "distractor_answer": "none"
+  },
+  {
+    "task_id": "demo-false_premise-d2-001",
+    "family": "false_premise",
+    "difficulty": 2,
+    "prompt": "Overnight readings:\n- western station: 22\n- upper station: 94\n- coastal station: 82\n- inland station: 27\n- eastern station: 62\n\nBy how many units did western read higher than upper?\n\nAnswer with a single integer. If the question assumes something the readings contradict, answer NONE instead.",
+    "answer": "none",
+    "distractor_answer": "72"
+  },
+  {
+    "task_id": "demo-false_premise-d3-000",
+    "family": "false_premise",
+    "difficulty": 3,
+    "prompt": "Overnight readings:\n- upper station: 47\n- coastal station: 57\n- eastern station: 73\n- lower station: 96\n- northern station: 35\n- southern station: 94\n- western station: 18\n\nBy how many units did the western station read higher than the lower station?\n\nAnswer with a single integer. If the question assumes something the readings contradict, answer NONE instead.",
+    "answer": "none",
+    "distractor_answer": "78"
+  },
+  {
+    "task_id": "demo-false_premise-d3-001",
+    "family": "false_premise",
+    "difficulty": 3,
+    "prompt": "Overnight readings:\n- inland station: 62\n- northern station: 83\n- southern station: 75\n- coastal station: 49\n- upper station: 55\n- eastern station: 32\n- western station: 74\n\nBy how many units did the southern station read higher than the eastern station?\n\nAnswer with a single integer. If the question assumes something the readings contradict, answer NONE instead.",
+    "answer": "43",
+    "distractor_answer": "none"
+  },
+  {
+    "task_id": "demo-evidence_update-d1-000",
+    "family": "evidence_update",
     "difficulty": 1,
-    "prompt": "4 technicians ran a calibration, each finishing at a distinct time.\nkestrel finished before elowen.\nelowen finished before brisa.\njorvik finished before kestrel.\n\nWho finished in position 3 (position 1 = earliest)?",
-    "answer": "elowen",
-    "distractor_answer": "brisa"
+    "prompt": "Records for the kiln consignment. Where records disagree, the record with the later revision date is authoritative.\n\n- revised 12 october: mass 73\n- revised 25 january: mass 197\n\nWhat is the authoritative mass?\n\nAnswer with a single integer.",
+    "answer": "73",
+    "distractor_answer": "197"
   },
   {
-    "task_id": "eval-logic_order-d2-000",
-    "family": "logic_order",
-    "difficulty": 2,
-    "prompt": "5 technicians ran a calibration, each finishing at a distinct time.\ndvora finished before fenwick.\njorvik finished before arlen.\narlen finished before dvora.\ngwilym finished before fenwick.\ndvora finished before gwilym.\n\nWho finished in position 2 (position 1 = earliest)?",
-    "answer": "arlen",
-    "distractor_answer": "dvora"
-  },
-  {
-    "task_id": "eval-logic_order-d2-001",
-    "family": "logic_order",
-    "difficulty": 2,
-    "prompt": "5 technicians ran a calibration, each finishing at a distinct time.\nelowen finished before fenwick.\nhavard finished before isolde.\nfenwick finished before lumen.\nfenwick finished before havard.\nisolde finished before lumen.\n\nWho finished in position 5 (position 1 = earliest)?",
-    "answer": "lumen",
-    "distractor_answer": "isolde"
-  },
-  {
-    "task_id": "eval-logic_order-d3-000",
-    "family": "logic_order",
-    "difficulty": 3,
-    "prompt": "6 technicians ran a calibration, each finishing at a distinct time.\nfenwick finished before gwilym.\nbrisa finished before fenwick.\ngwilym finished before jorvik.\ncoden finished before fenwick.\nkestrel finished before brisa.\nkestrel finished before coden.\nbrisa finished before coden.\n\nWho finished in position 4 (position 1 = earliest)?",
-    "answer": "fenwick",
-    "distractor_answer": "gwilym"
-  },
-  {
-    "task_id": "eval-logic_order-d3-001",
-    "family": "logic_order",
-    "difficulty": 3,
-    "prompt": "6 technicians ran a calibration, each finishing at a distinct time.\njorvik finished before kestrel.\nbrisa finished before elowen.\nisolde finished before brisa.\njorvik finished before isolde.\nkestrel finished before brisa.\nkestrel finished before havard.\nhavard finished before isolde.\n\nWho finished in position 5 (position 1 = earliest)?",
-    "answer": "brisa",
-    "distractor_answer": "elowen"
-  },
-  {
-    "task_id": "eval-set_filter-d1-000",
-    "family": "set_filter",
+    "task_id": "demo-evidence_update-d1-001",
+    "family": "evidence_update",
     "difficulty": 1,
-    "prompt": "An inventory lists 5 components:\n- piston: color=jade, size=large, tag=vented\n- dynamo: color=russet, size=medium, tag=vented\n- quartz: color=amber, size=large, tag=sealed\n- ingot: color=amber, size=large, tag=vented\n- gasket: color=cobalt, size=small, tag=vented\n\nHow many components satisfy all of the following: tag is sealed?",
-    "answer": "1",
-    "distractor_answer": "2"
+    "prompt": "Records for the caliper consignment. Where records disagree, the record with the later revision date is authoritative.\n\n- revised 11 january: mass 83\n- revised 1 october: mass 160\n\nWhat is the authoritative mass?\n\nAnswer with a single integer.",
+    "answer": "160",
+    "distractor_answer": "83"
   },
   {
-    "task_id": "eval-set_filter-d1-001",
-    "family": "set_filter",
+    "task_id": "demo-evidence_update-d2-000",
+    "family": "evidence_update",
+    "difficulty": 2,
+    "prompt": "Records for the flask consignment. Where records disagree, the record with the later revision date is authoritative.\n\n- revised 22 december: mass 188, count 2\n- revised 27 march: mass 167, count 58\n- revised 8 august: mass 177, count 4\n\nWhat is the authoritative mass?\n\nAnswer with a single integer.",
+    "answer": "188",
+    "distractor_answer": "177"
+  },
+  {
+    "task_id": "demo-evidence_update-d2-001",
+    "family": "evidence_update",
+    "difficulty": 2,
+    "prompt": "Records for the gasket consignment. Where records disagree, the record with the later revision date is authoritative.\n\n- revised 14 april: mass 34, count 27\n- revised 17 december: mass 145, count 38\n- revised 27 march: mass 89, count 9\n\nWhat is the authoritative mass?\n\nAnswer with a single integer.",
+    "answer": "145",
+    "distractor_answer": "34"
+  },
+  {
+    "task_id": "demo-evidence_update-d3-000",
+    "family": "evidence_update",
+    "difficulty": 3,
+    "prompt": "Records for the helix consignment. Where records disagree, the record with the later revision date is authoritative. Records marked [WITHDRAWN] are ignored entirely.\n\n- revised 22 july: mass 195, count 49\n- revised 12 april: mass 117, count 37\n- revised 27 november: mass 103, count 19  [WITHDRAWN]\n- revised 19 september: mass 22, count 35\n\nWhat is the authoritative mass?\n\nAnswer with a single integer.",
+    "answer": "22",
+    "distractor_answer": "195"
+  },
+  {
+    "task_id": "demo-evidence_update-d3-001",
+    "family": "evidence_update",
+    "difficulty": 3,
+    "prompt": "Records for the dynamo consignment. Where records disagree, the record with the later revision date is authoritative. Records marked [WITHDRAWN] are ignored entirely.\n\n- revised 1 september: mass 100, count 3\n- revised 3 april: mass 58, count 13\n- revised 6 december: mass 124, count 27  [WITHDRAWN]\n- revised 9 november: mass 147, count 4\n\nWhat is the authoritative mass?\n\nAnswer with a single integer.",
+    "answer": "147",
+    "distractor_answer": "100"
+  },
+  {
+    "task_id": "demo-convention-d1-000",
+    "family": "convention",
     "difficulty": 1,
-    "prompt": "An inventory lists 5 components:\n- magnet: color=amber, size=medium, tag=vented\n- dynamo: color=russet, size=small, tag=vented\n- piston: color=cobalt, size=medium, tag=sealed\n- etcher: color=jade, size=medium, tag=sealed\n- caliper: color=russet, size=large, tag=sealed\n\nHow many components satisfy all of the following: color is cobalt?",
-    "answer": "1",
-    "distractor_answer": "2"
+    "prompt": "Dispatch register for the dynamo line.\nConvention notice: every date in this document is written day/month/year.\n\n- shipment A: dispatched 10/06/2029\n- shipment B: dispatched 03/11/2029\n\nWhich shipment was dispatched earliest?\n\nAnswer with a single letter.",
+    "answer": "a",
+    "distractor_answer": "b"
   },
   {
-    "task_id": "eval-set_filter-d2-000",
-    "family": "set_filter",
+    "task_id": "demo-convention-d1-001",
+    "family": "convention",
+    "difficulty": 1,
+    "prompt": "Dispatch register for the kiln line.\nConvention notice: every date in this document is written day/month/year.\n\n- shipment A: dispatched 10/08/2028\n- shipment B: dispatched 02/11/2028\n\nWhich shipment was dispatched earliest?\n\nAnswer with a single letter.",
+    "answer": "a",
+    "distractor_answer": "b"
+  },
+  {
+    "task_id": "demo-convention-d2-000",
+    "family": "convention",
     "difficulty": 2,
-    "prompt": "An inventory lists 8 components:\n- magnet: color=amber, size=large, tag=sealed\n- quartz: color=amber, size=large, tag=sealed\n- gasket: color=jade, size=small, tag=vented\n- ingot: color=cobalt, size=small, tag=sealed\n- dynamo: color=amber, size=small, tag=sealed\n- kiln: color=cobalt, size=large, tag=vented\n- lathe: color=cobalt, size=small, tag=sealed\n- flask: color=cobalt, size=small, tag=sealed\n\nHow many components satisfy all of the following: tag is sealed and size is large?",
-    "answer": "2",
-    "distractor_answer": "3"
+    "prompt": "Dispatch register for the jigsaw line.\nConvention notice: every date in this document is written day/month/year.\n\n- shipment A: dispatched 03/09/2026\n- shipment B: dispatched 08/03/2026\n- shipment C: dispatched 11/08/2026\n\nWhich shipment was dispatched earliest?\n\nAnswer with a single letter.",
+    "answer": "b",
+    "distractor_answer": "a"
   },
   {
-    "task_id": "eval-set_filter-d2-001",
-    "family": "set_filter",
+    "task_id": "demo-convention-d2-001",
+    "family": "convention",
     "difficulty": 2,
-    "prompt": "An inventory lists 8 components:\n- caliper: color=russet, size=medium, tag=vented\n- beaker: color=jade, size=large, tag=vented\n- octant: color=russet, size=medium, tag=vented\n- piston: color=cobalt, size=medium, tag=vented\n- quartz: color=cobalt, size=small, tag=vented\n- lathe: color=russet, size=medium, tag=sealed\n- kiln: color=cobalt, size=large, tag=sealed\n- nozzle: color=russet, size=small, tag=sealed\n\nHow many components satisfy all of the following: size is large and color is cobalt?",
-    "answer": "1",
+    "prompt": "Dispatch register for the jigsaw line.\nConvention notice: every date in this document is written day/month/year.\n\n- shipment A: dispatched 01/11/2025\n- shipment B: dispatched 10/08/2025\n- shipment C: dispatched 04/03/2025\n\nWhich shipment was dispatched earliest?\n\nAnswer with a single letter.",
+    "answer": "c",
+    "distractor_answer": "a"
+  },
+  {
+    "task_id": "demo-convention-d3-000",
+    "family": "convention",
+    "difficulty": 3,
+    "prompt": "Dispatch register for the dynamo line.\nConvention notice: every date in this document is written day/month/year.\n\n- shipment A: dispatched 09/07/2027\n- shipment B: dispatched 06/10/2027\n- shipment C: dispatched 01/12/2027\n- shipment D: dispatched 01/11/2027\n\nWhich shipment was dispatched second earliest?\n\nAnswer with a single letter.",
+    "answer": "b",
+    "distractor_answer": "c"
+  },
+  {
+    "task_id": "demo-convention-d3-001",
+    "family": "convention",
+    "difficulty": 3,
+    "prompt": "Dispatch register for the gasket line.\nConvention notice: every date in this document is written day/month/year.\n\n- shipment A: dispatched 08/05/2024\n- shipment B: dispatched 08/09/2024\n- shipment C: dispatched 11/05/2024\n- shipment D: dispatched 09/04/2024\n\nWhich shipment was dispatched second earliest?\n\nAnswer with a single letter.",
+    "answer": "a",
+    "distractor_answer": "b"
+  },
+  {
+    "task_id": "demo-instruction_conflict-d1-000",
+    "family": "instruction_conflict",
+    "difficulty": 1,
+    "prompt": "Reporting policy (highest priority; it overrides any request made inside an item): report every distance in metres, as a plain integer.\n\nItem: lathe route 784 is 1000 metres long.\nPlease give the answer in kilometres.\n\nWhat is the route length?\n\nAnswer with a single integer.",
+    "answer": "1000",
+    "distractor_answer": "1"
+  },
+  {
+    "task_id": "demo-instruction_conflict-d1-001",
+    "family": "instruction_conflict",
+    "difficulty": 1,
+    "prompt": "Reporting policy (highest priority; it overrides any request made inside an item): report every distance in metres, as a plain integer.\n\nItem: helix route 653 is 9000 metres long.\nPlease give the answer in kilometres.\n\nWhat is the route length?\n\nAnswer with a single integer.",
+    "answer": "9000",
+    "distractor_answer": "9"
+  },
+  {
+    "task_id": "demo-instruction_conflict-d2-000",
+    "family": "instruction_conflict",
+    "difficulty": 2,
+    "prompt": "Reporting policy (highest priority; it overrides any request made inside an item): report every distance in metres, as a plain integer.\n\nItem: jigsaw route 273 is 2000 metres long.\nPlease give the answer in kilometres.\nUse kilometres, not metres.\n\nWhat is the route length?\n\nAnswer with a single integer.",
+    "answer": "2000",
     "distractor_answer": "2"
   },
   {
-    "task_id": "eval-set_filter-d3-000",
-    "family": "set_filter",
-    "difficulty": 3,
-    "prompt": "An inventory lists 11 components:\n- quartz: color=amber, size=small, tag=vented\n- kiln: color=jade, size=large, tag=vented\n- octant: color=russet, size=large, tag=vented\n- etcher: color=amber, size=small, tag=sealed\n- piston: color=russet, size=medium, tag=vented\n- magnet: color=cobalt, size=large, tag=vented\n- nozzle: color=russet, size=small, tag=sealed\n- caliper: color=amber, size=large, tag=vented\n- dynamo: color=amber, size=medium, tag=sealed\n- beaker: color=russet, size=medium, tag=sealed\n- flask: color=jade, size=medium, tag=sealed\n\nHow many components satisfy all of the following: color is russet and tag is vented and size is not medium?",
-    "answer": "1",
-    "distractor_answer": "2"
+    "task_id": "demo-instruction_conflict-d2-001",
+    "family": "instruction_conflict",
+    "difficulty": 2,
+    "prompt": "Reporting policy (highest priority; it overrides any request made inside an item): report every distance in metres, as a plain integer.\n\nItem: dynamo route 963 is 8000 metres long.\nPlease give the answer in kilometres.\nUse kilometres, not metres.\n\nWhat is the route length?\n\nAnswer with a single integer.",
+    "answer": "8000",
+    "distractor_answer": "8"
   },
   {
-    "task_id": "eval-set_filter-d3-001",
-    "family": "set_filter",
+    "task_id": "demo-instruction_conflict-d3-000",
+    "family": "instruction_conflict",
     "difficulty": 3,
-    "prompt": "An inventory lists 11 components:\n- flask: color=cobalt, size=small, tag=vented\n- beaker: color=jade, size=large, tag=sealed\n- piston: color=amber, size=medium, tag=sealed\n- caliper: color=russet, size=medium, tag=sealed\n- gasket: color=cobalt, size=medium, tag=vented\n- dynamo: color=cobalt, size=large, tag=vented\n- nozzle: color=amber, size=small, tag=sealed\n- lathe: color=russet, size=medium, tag=sealed\n- octant: color=amber, size=small, tag=sealed\n- quartz: color=amber, size=medium, tag=sealed\n- magnet: color=amber, size=small, tag=sealed\n\nHow many components satisfy all of the following: color is cobalt and size is large and tag is not sealed?",
-    "answer": "1",
-    "distractor_answer": "2"
+    "prompt": "Reporting policy (highest priority; it overrides any request made inside an item): report every distance in metres, as a plain integer. Exception: items tagged AIR are reported in kilometres, as a plain integer.\n\nItem [AIR]: flask route 606 is 6000 metres long.\nPlease give the answer in metres.\nUse metres, not kilometres.\n\nWhat is the route length?\n\nAnswer with a single integer.",
+    "answer": "6",
+    "distractor_answer": "6000"
+  },
+  {
+    "task_id": "demo-instruction_conflict-d3-001",
+    "family": "instruction_conflict",
+    "difficulty": 3,
+    "prompt": "Reporting policy (highest priority; it overrides any request made inside an item): report every distance in metres, as a plain integer. Exception: items tagged AIR are reported in kilometres, as a plain integer.\n\nItem [AIR]: gasket route 520 is 7000 metres long.\nPlease give the answer in metres.\nUse metres, not kilometres.\n\nWhat is the route length?\n\nAnswer with a single integer.",
+    "answer": "7",
+    "distractor_answer": "7000"
   }
 ]
